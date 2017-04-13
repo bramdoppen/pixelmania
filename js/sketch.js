@@ -29,7 +29,7 @@ function setup() {
     database = firebase.database();
 
     background(255);
-    // drawGrid(canvas.width, canvas.height);
+    drawGrid(canvas.width, canvas.height);
 }
 
 function changeColor() {
@@ -40,23 +40,12 @@ function changeColor() {
         ref.once('value', function(snapshot) {
             pixelcolor = snapshot.val();
             switch (pixelcolor) {
-                case 255:
-                    ref.set(191);
-                    break;
-                case 191:
-                    ref.set(127);
-                    break;
-                case 127:
-                    ref.set(63);
-                    break;
-                case 63:
-                    ref.set(0);
-                    break;
-                case 0:
-                    ref.set(255);
-                    break;
-                default:
-                    ref.set(255);
+                case 255: ref.set(191); break;
+                case 191: ref.set(127); break;
+                case 127: ref.set(63); break;
+                case 63: ref.set(0); break;
+                case 0: ref.set(255); break;
+                default: ref.set(255);
             }
         }, errData);
         //        mySound.setVolume(0.3);
@@ -121,4 +110,7 @@ function errData(err) {
 
 function draw() {
     //    showReticle();
+    // background(200);
+    // camera(0, 0, 10);
+    // plane(100,100);
 }
