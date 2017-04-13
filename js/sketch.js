@@ -67,8 +67,8 @@ function drawPixel(i, j) {
         fill(color);
         rect(i * 20, j * 20, 20, 20);
         if (nosound <= 0) {
-            mySound.setVolume(0.05);
-            mySound.play();
+            // mySound.setVolume(0.05);
+            // mySound.play();
         }
         nosound--;
     }, errData);
