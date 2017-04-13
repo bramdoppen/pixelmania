@@ -29,7 +29,7 @@ function setup() {
     database = firebase.database();
 
     background(255);
-    drawGrid(canvas.width, canvas.height);
+    // drawGrid(canvas.width, canvas.height);
 }
 
 function changeColor() {
