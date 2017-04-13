@@ -48,8 +48,6 @@ function changeColor() {
                 default: ref.set(255);
             }
         }, errData);
-        //        mySound.setVolume(0.3);
-        //        mySound.play();
     }
 }
 
