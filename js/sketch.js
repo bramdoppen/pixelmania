@@ -90,8 +90,8 @@ function mousePressed() {
 }
 
 function createPixelsInDatabase() {
-    for (var i = 0; i < 4000 / 20; i++) {
-        for (var j = 0; j < 4000 / 20; j++) {
+    for (var i = 0; i < 2560 / 20; i++) {
+        for (var j = 0; j < 1440 / 20; j++) {
             var ref = database.ref('pixels/' + i + '/' + j);
             var data = {
                 color: 255

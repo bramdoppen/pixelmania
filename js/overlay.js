@@ -18,7 +18,7 @@ function showReticle() {
 }
 
 function draw() {
-    background(200);
+    // background(200);
     showReticle();
     // camera(0, 0, 10);
     // plane(100,100);
