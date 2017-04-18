@@ -2,7 +2,7 @@ var database;
 var mySound;
 var canvas;
 var pixelValues = [];
-var fr = 60;
+var fr = 30;
 var nosound;
 var startingTime;
 var field = {
@@ -14,6 +14,12 @@ var team2 = 0;
 var team3 = 0;
 var team4 = 0;
 
+var activeColor = 'White';
+var activeColorIdentifier = 'Tomato';
+
+var colorArray = ['DarkTurquoise', 'GreenYellow', 'Tomato', 'MediumVioletRed', 'DimGray', 'White']; //eenmalig nodig voor Setup van firebase
+var buttonKeys;
+
 function preload() {
     fontBold = loadFont('./assets/courbd.ttf');
     mySound = loadSound('sfx/Input/Input-04a.mp3');
@@ -22,9 +28,10 @@ function preload() {
 function setup() {
     pixelDensity(1);
     frameRate(fr);
-    noCursor();
+    // noCursor();
     startingTime = millis();
-    canvas = createCanvas(900, 800);
+    time = new Date().getTime();
+    canvas = createCanvas(900, 900);
     canvas.parent('canvasContainer');
     nosound = ceil(field.width / 20) * ceil(field.height / 20);
     console.log(nosound);
@@ -43,7 +50,7 @@ function setup() {
     database = firebase.database();
 
     setToActive();
-    initiatePixelValues(field.width, field.height);
+    initializePixelValues(field.width, field.height);
     // console.log(pixelValues);
     updatePixelValues(field.width, field.height);
     // while(pixelValues[39][39] == null) {
@@ -51,9 +58,95 @@ function setup() {
     // }
     // console.log(pixelValues);
 
-    // background(255);
-    // drawGrid(canvas.width, canvas.height);
+    getButtonFromDB();
+    // changeActiveColor('White');
 }
+
+// Code GUUS ---------------------------------------------------------------- //
+
+function createColorButtonsDB(colorArray) {
+    for (var i = 0; i < colorArray.length; i++) {
+        var colorButtons = database.ref('colorButtons/' + colorArray[i]);
+        var data = {
+            active: 1,
+            colorCode: String(colorArray[i])
+        }
+        colorButtons.set(data);
+        return colorArray[i];
+    }
+}
+
+function getButtonFromDB() {
+    var buttonsPad = database.ref('colorButtons');
+    buttonsPad.on("value", gotButtonData, errButton);
+}
+
+function gotButtonData(data) {
+    // clear previous list
+    var buttonListings = selectAll('.buttonListing');
+    for (var i = 0; i < buttonListings.length; i++){
+        buttonListings[i].remove();
+    }
+    var buttons = data.val();
+    buttonKeys = Object.keys(buttons);
+    for (var i = 0; i < buttonKeys.length; i++) {
+        var k = buttonKeys[i];
+        var colorCode = buttons[k].colorCode;
+        var buttonLi = createElement("li");
+        buttonLi.parent("colorButtonListParent");
+        var colorButton = createElement("button", colorCode);
+        buttonLi.child(colorButton);
+        buttonLi.class('buttonListing');
+        colorButton.id(colorCode);
+        colorButton.style("background-color", colorCode);
+        console.log(i, colorCode);
+
+        function makeColorClickHandler(color) {
+            return function() { changeActiveColor(color) }
+        }
+
+        colorButton.mousePressed(makeColorClickHandler(colorCode));
+        if (i == buttonKeys.length - 1) {
+            changeActiveColorSetup(colorCode);
+        }
+    }
+}
+
+function errButton() {
+    console.log("error retrieving button data!!")
+}
+function changeActiveColor(colorCode) {
+    var prevActiveColorButton = document.getElementById(activeColorIdentifier);
+    var activeColorButton = document.getElementById(colorCode);
+
+    prevActiveColorButton.className = "";
+    activeColor = colorCode;
+    activeColorIdentifier = colorCode;
+    activeColorButton.className = "activeColor";
+}
+
+function changeActiveColorSetup(colorCode) {
+    var activeColorButton = document.getElementById(colorCode);
+
+    activeColorButton.className = "activeColor";
+}
+
+// rest --------------------------------------------------------------------- //
+
+// function changeColor() {
+//     var x = floor(mouseX / 100);
+//     var y = floor(mouseY / 100);
+//     // console.log(x, y);
+//     var kleurWaardePad = database.ref('vierkanten/' + x + '/' + y + '/kleur');
+//     kleurWaardePad.transaction(function(data) {
+//         return data = activeColor;
+//     });
+//
+//     // kleurWaardePad.set(100);
+//     // pixelColor[x][y] = (pixelColor[x][y] + 100) % 255;
+// }
+
+// Code ROBIN --------------------------------------------------------------- //
 
 function setToActive() {
     var active = database.ref('activeUsers');
@@ -75,58 +168,58 @@ function setToInactive() {
     }, errData);
 }
 
-function initiatePixelValues(width, height) {
-    for (var i = 0; i < width / 20; i++) {
+function initializePixelValues(width, height) {
+    for (var col = 0; col < width / 20; col++) {
         pixelValues.push([]);
-        for (var j = 0; j < height / 20; j++) {
-            pixelValues[i][j] = 255;
+        for (var row = 0; row < height / 20; row++) {
+            pixelValues[col][row] = 255;
         }
     }
 }
 
 function updatePixelValues(width, height) {
-    for (var i = 0; i < width / 20; i++) {
-        for (var j = 0; j < height / 20; j++) {
-            getPixelValue(i, j)
+    for (var col = 0; col < width / 20; col++) {
+        for (var row = 0; row < height / 20; row++) {
+            getPixelValue(col, row)
         }
     }
 }
 
-function getPixelValue(x, y) {
-    var ref = database.ref('pixels/' + x + '/' + y + '/color');
+function getPixelValue(col, row) {
+    var ref = database.ref('pixels/' + col + '/' + row + '/color');
     ref.on('value', function(snapshot) {
         var colorValue = snapshot.val();
-        pixelValues[x][y] = colorValue;
+        pixelValues[col][row] = colorValue;
     }, errData);
 }
 
 function drawGrid(width, height) {
-    for (var i = 0; i < width / 20; i++) {
-        for (var j = 0; j < height / 20; j++) {
-            drawPixel(i, j)
+    for (var col = 0; col < width / 20; col++) {
+        for (var row = 0; row < height / 20; row++) {
+            drawPixel(col, row)
         }
     }
 }
 
-function drawPixel(x, y) {
-    var color = pixelValues[x][y];
+function drawPixel(col, row) {
+    var color = pixelValues[col][row];
     noStroke();
     fill(color);
-    rect(x * 20, y * 20, 20, 20);
+    rect(col * 20, row * 20, 20, 20);
 }
 
 function updateScore(width, height) {
     team1 = 0; team2 = 0; team3 = 0; team4 = 0;
-    for (var i = 0; i < width / 20; i++) {
-        for (var j = 0; j < height / 20; j++) {
-            var color = countColors(i, j);
+    for (var col = 0; col < width / 20; col++) {
+        for (var row = 0; row < height / 20; row++) {
+            var color = countColors(col, row);
         }
     }
     // console.log(team1, team2, team3, team4);
 }
 
-function countColors(x, y) {
-    switch (pixelValues[x][y]) {
+function countColors(col, row) {
+    switch (pixelValues[col][row]) {
         case 'DarkTurquoise': team1++; break;
         case 'GreenYellow': team2++; break;
         case 'Tomato': team3++; break;
@@ -187,19 +280,27 @@ function showCurrentLeader(ratio) {
 function showReticle() {
     var x = floor(mouseX / 20);
     var y = floor(mouseY / 20);
-    noFill();
-    stroke(255, 100, 0);
-    strokeWeight(1);
-    rect(x * 20, y * 20, 20, 20);
-    switch (pixelValues[x][y]) {
-        case 'White': fill('DarkTurquoise'); noStroke(); break;
-        case 'DarkTurquoise': fill('GreenYellow'); noStroke(); break;
-        case 'GreenYellow': fill('Tomato'); noStroke(); break;
-        case 'Tomato': fill('MediumVioletRed'); noStroke(); break;
-        case 'MediumVioletRed': fill('DimGray'); noStroke(); break;
-        case 'DimGray': fill('White'); stroke(255, 100, 0); break;
+    if (x * 20 < field.width && y * 20 < field.height) {
+        noFill();
+        stroke(255, 100, 0);
+        strokeWeight(1);
+        rect(x * 20, y * 20, 20, 20);
+        // switch (pixelValues[x][y]) {
+        //     case 'White': fill('DarkTurquoise'); noStroke(); break;
+        //     case 'DarkTurquoise': fill('GreenYellow'); noStroke(); break;
+        //     case 'GreenYellow': fill('Tomato'); noStroke(); break;
+        //     case 'Tomato': fill('MediumVioletRed'); noStroke(); break;
+        //     case 'MediumVioletRed': fill('DimGray'); noStroke(); break;
+        //     case 'DimGray': fill('White'); stroke(255, 100, 0); break;
+        // }
+        fill(activeColor);
+        if (activeColor == 'White') {
+            stroke(255, 100, 0);
+        } else {
+            noStroke();
+        }
+        rect(x * 20 + 10, y * 20 - 10, 20, 20);
     }
-    rect(x * 20 + 10, y * 20 - 10, 20, 20);
 }
 
 function mousePressed() {
@@ -228,16 +329,16 @@ function changeColor() {
         var y = floor(mouseY / 20);
         var ref = database.ref('pixels/' + x + '/' + y + '/color');
         ref.once('value', function(snapshot) {
-            pixelcolor = snapshot.val();
-            switch (pixelcolor) {
-                case 'White': ref.set('DarkTurquoise'); break;
-                case 'DarkTurquoise': ref.set('GreenYellow'); break;
-                case 'GreenYellow': ref.set('Tomato'); break;
-                case 'Tomato': ref.set('MediumVioletRed'); break;
-                case 'MediumVioletRed': ref.set('DimGray'); break;
-                case 'DimGray': ref.set('White'); break;
-                default: ref.set('White');
-            }
+            // pixelcolor = snapshot.val();
+            // switch (pixelcolor) {
+            //     case 'White': ref.set('DarkTurquoise'); break;
+            //     case 'DarkTurquoise': ref.set('GreenYellow'); break;
+            //     case 'GreenYellow': ref.set('Tomato'); break;
+            //     case 'Tomato': ref.set('MediumVioletRed'); break;
+            //     case 'MediumVioletRed': ref.set('DimGray'); break;
+            //     case 'DimGray': ref.set('White'); break;
+            //     default: ref.set('White');
+            ref.set(activeColor);
         }, errData);
     }
 }
@@ -274,6 +375,7 @@ function draw() {
     drawGrid(field.width, field.height);
     updateScore(field.width, field.height);
     drawScore();
+    text(floor(frameRate()), 100, 100);
     showReticle();
     // camera(0, 0, 10);
     // plane(100,100);

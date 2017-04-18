@@ -6,7 +6,7 @@
     <script language="javascript" src="libraries/p5.sound.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.7.5/firebase.js"></script>
     <script language="javascript" type="text/javascript" src="js/sketch.js"></script>
-    <!-- <script language="javascript" type="text/javascript" src="js/overlay.js"></script> -->
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <style>
         body {
             padding: 0; margin: 0;
@@ -18,8 +18,11 @@
     </style>
 </head>
 
-<body oncontextmenu="return false">
+<body oncontextmenu="return true">
     <div id="canvasContainer"></div>
-    <!-- <div id="text"></div> -->
+    <div id="colorSelection">
+        <ul id="colorButtonListParent">
+        </ul>
+    </div>
 </body>
 </html>
