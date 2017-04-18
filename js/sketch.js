@@ -17,7 +17,7 @@ var team4 = 0;
 var activeColor = 'White';
 var activeColorIdentifier = 'Tomato';
 
-var colorArray = ['DarkTurquoise', 'GreenYellow', 'Tomato', 'MediumVioletRed', 'DimGray', 'White']; //eenmalig nodig voor Setup van firebase
+var colorArray = ['DarkTurquoise', 'GreenYellow', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
 var buttonKeys;
 
 function preload() {
@@ -51,29 +51,9 @@ function setup() {
 
     setToActive();
     initializePixelValues(field.width, field.height);
-    // console.log(pixelValues);
     updatePixelValues(field.width, field.height);
-    // while(pixelValues[39][39] == null) {
-    //     //do nothing
-    // }
-    // console.log(pixelValues);
 
     getButtonFromDB();
-    // changeActiveColor('White');
-}
-
-// Code GUUS ---------------------------------------------------------------- //
-
-function createColorButtonsDB(colorArray) {
-    for (var i = 0; i < colorArray.length; i++) {
-        var colorButtons = database.ref('colorButtons/' + colorArray[i]);
-        var data = {
-            active: 1,
-            colorCode: String(colorArray[i])
-        }
-        colorButtons.set(data);
-        return colorArray[i];
-    }
 }
 
 function getButtonFromDB() {
@@ -130,23 +110,6 @@ function changeActiveColorSetup(colorCode) {
 
     activeColorButton.className = "activeColor";
 }
-
-// rest --------------------------------------------------------------------- //
-
-// function changeColor() {
-//     var x = floor(mouseX / 100);
-//     var y = floor(mouseY / 100);
-//     // console.log(x, y);
-//     var kleurWaardePad = database.ref('vierkanten/' + x + '/' + y + '/kleur');
-//     kleurWaardePad.transaction(function(data) {
-//         return data = activeColor;
-//     });
-//
-//     // kleurWaardePad.set(100);
-//     // pixelColor[x][y] = (pixelColor[x][y] + 100) % 255;
-// }
-
-// Code ROBIN --------------------------------------------------------------- //
 
 function setToActive() {
     var active = database.ref('activeUsers');
@@ -311,18 +274,6 @@ function mousePressed() {
     return false;
 }
 
-// function touchStarted() {
-//     showReticle();
-//     // prevent default
-//     return false;
-// }
-
-// function touchEnded() {
-//     changeColor();
-//     // prevent default
-//     return false;
-// }
-
 function changeColor() {
     if (mouseX < 800 && mouseY < 800) {
         var x = floor(mouseX / 20);
@@ -343,23 +294,6 @@ function changeColor() {
     }
 }
 
-function initPixelsDB() {
-    for (var i = 0; i < 800 / 20; i++) {
-        for (var j = 0; j < 800 / 20; j++) {
-            var ref = database.ref('pixels/' + i + '/' + j);
-            var data = {
-                color: 'White'
-            }
-            ref.set(data);
-        }
-    }
-}
-
-function initTimerDB() {
-    var timer = database.ref('timer');
-    timer.set(startingTime);
-}
-
 function errData(err) {
     console.log("error");
     console.log(err);
@@ -377,6 +311,4 @@ function draw() {
     drawScore();
     text(floor(frameRate()), 100, 100);
     showReticle();
-    // camera(0, 0, 10);
-    // plane(100,100);
 }
