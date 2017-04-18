@@ -22,33 +22,8 @@ function setup() {
     database = firebase.database();
 }
 
-function initColorButtonsDB(colorArray) {
-    for (var i = 0; i < colorArray.length; i++) {
-        var colorButtons = database.ref('colorButtons/' + colorArray[i]);
-        var data = {
-            active: 1,
-            colorCode: String(colorArray[i])
-        }
-        colorButtons.set(data);
-        return colorArray[i];
-    }
-}
+function zero(x, y) {
 
-function initPixelsDB() {
-    for (var i = 0; i < 800 / 20; i++) {
-        for (var j = 0; j < 800 / 20; j++) {
-            var ref = database.ref('pixels/' + i + '/' + j);
-            var data = {
-                color: 'White'
-            }
-            ref.set(data);
-        }
-    }
-}
-
-function initTimerDB() {
-    var timer = database.ref('timer');
-    timer.set(time);
 }
 
 function draw() {

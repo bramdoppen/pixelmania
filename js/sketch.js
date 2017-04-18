@@ -95,6 +95,7 @@ function gotButtonData(data) {
 function errButton() {
     console.log("error retrieving button data!!")
 }
+
 function changeActiveColor(colorCode) {
     var prevActiveColorButton = document.getElementById(activeColorIdentifier);
     var activeColorButton = document.getElementById(colorCode);
@@ -305,7 +306,7 @@ window.addEventListener("unload", function (e) {
 });
 
 function draw() {
-    background(255);
+    background(238);
     drawGrid(field.width, field.height);
     updateScore(field.width, field.height);
     drawScore();
