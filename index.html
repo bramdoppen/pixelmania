@@ -1,22 +1,29 @@
-<!DOCTYPE html>
 <html>
+
 <head>
-    <!--Initialize Firebase-->
-    <script src="https://www.gstatic.com/firebasejs/3.7.5/firebase.js"></script>
-
-    <!--Initialize p5.js-->
+    <meta charset="UTF-8">
     <script language="javascript" type="text/javascript" src="libraries/p5.js"></script>
-    <script language="javascript" type="text/javascript" src="libraries/p5.dom.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.7.5/firebase.js"></script>
+    <script language="javascript" src="libraries/p5.dom.js"></script>
+    <script language="javascript" type="text/javascript" src="sketch.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
 
-    <script src="js/script.js"></script>
-
-    <title>PixelMania</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
 </head>
-<body>
-pixelmania
-<div id="canvasContainer"></div>
 
+<body oncontextmenu="return false;">
+    <div id="canvasParent"></div>
+    <div id="colorSelection">
+        <ul id="colorButtonListParent">
+
+        </ul>
+    </div>
 
 </body>
-</html>
 
+</html>
