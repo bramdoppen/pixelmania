@@ -1,6 +1,6 @@
 #canvascontainer {
-    padding-left: 40px;
-    padding-top: 40px;
+    /*padding-left: 40px;
+    padding-top: 40px;*/
 }
 
 body {
@@ -8,9 +8,11 @@ body {
     background-color: #eee;
 }
 
-#score {
+#timer {
     font-family: monospace;
-    padding: 30px;
+    font-size: 32pt;
+    margin-left: 400px;
+    margin-top: 40px;
 }
 
 #colorSelection {

@@ -5,7 +5,6 @@ var field = { width: 800, height: 800 }
 var colorArray = ['DarkTurquoise', 'GreenYellow', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
 
 function setup() {
-    time = new Date().getTime();
     canvas = createCanvas(900, 900);
     canvas.parent('canvasContainer');
 
@@ -47,8 +46,9 @@ function initPixelsDB() {
 }
 
 function initTimerDB() {
-    var timer = database.ref('timer');
-    timer.set(time);
+    var currentTime = new Date().getTime();
+    var time = database.ref('time');
+    time.set(currentTime);
 }
 
 function draw() {

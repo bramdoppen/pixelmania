@@ -4,7 +4,8 @@ var canvas;
 var pixelValues = [];
 var fr = 30;
 var nosound;
-var startingTime;
+var localTime;
+var serverTime;
 var field = {
     width: 800,
     height: 800
@@ -29,8 +30,7 @@ function setup() {
     pixelDensity(1);
     frameRate(fr);
     // noCursor();
-    startingTime = millis();
-    time = new Date().getTime();
+    localTime = new Date().getTime();
     canvas = createCanvas(900, 900);
     canvas.parent('canvasContainer');
     nosound = ceil(field.width / 20) * ceil(field.height / 20);
@@ -49,11 +49,21 @@ function setup() {
     firebase.initializeApp(config);
     database = firebase.database();
 
+    getServerTime();
+
     setToActive();
     initializePixelValues(field.width, field.height);
     updatePixelValues(field.width, field.height);
 
     getButtonFromDB();
+}
+
+function getServerTime() {
+    var ref = database.ref('time');
+    ref.on('value', function(snapshot) {
+        serverTime = snapshot.val();
+        console.log(serverTime);
+    }, errData);
 }
 
 function getButtonFromDB() {
@@ -300,16 +310,29 @@ function errData(err) {
     console.log(err);
 }
 
+function updateTimer() {
+    var timer = document.getElementById('timer');
+    var timeDiff = floor(new Date().getTime() - serverTime);
+    if (timeDiff > 10000) {
+        initTimerDB();
+    } else if (timeDiff <= 10000) {
+        timer.innerHTML = floor(timeDiff / 1000);
+    }
+
+}
+
 window.addEventListener("unload", function (e) {
     setToInactive();
     console.log('ELVIS HAS LEFT THE BUILDING');
 });
 
 function draw() {
-    background(238);
+    // background(238);
+    background(100);
     drawGrid(field.width, field.height);
     updateScore(field.width, field.height);
     drawScore();
     text(floor(frameRate()), 100, 100);
     showReticle();
+    updateTimer();
 }
