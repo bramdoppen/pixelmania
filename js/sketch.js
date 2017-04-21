@@ -2,10 +2,13 @@ var database;
 var mySound;
 var canvas;
 var pixelValues = [];
+var prevField;
 var fr = 30;
 var nosound;
 var localTime;
 var serverTime;
+var timeDiff;
+var roundLength = 60;
 var field = {
     width: 800,
     height: 800
@@ -170,16 +173,16 @@ function getPixelValue(col, row) {
 function drawGrid(width, height) {
     for (var col = 0; col < width / 20; col++) {
         for (var row = 0; row < height / 20; row++) {
-            drawPixel(col, row)
+            drawPixel(col, row, pixelValues, 20, 0, 0)
         }
     }
 }
 
-function drawPixel(col, row) {
-    var color = pixelValues[col][row];
+function drawPixel(col, row, arr, pixelSize, offsetX, offsetY) {
+    var color = arr[col][row];
     noStroke();
     fill(color);
-    rect(col * 20, row * 20, 20, 20);
+    rect(offsetX + col * pixelSize, offsetY + row * pixelSize, pixelSize, pixelSize);
 }
 
 function updateScore(width, height) {
@@ -312,13 +315,41 @@ function errData(err) {
 
 function updateTimer() {
     var timer = document.getElementById('timer');
-    var timeDiff = floor(new Date().getTime() - serverTime);
-    if (timeDiff > 10000) {
+    timeDiff = floor(new Date().getTime() - serverTime);
+    if (timeDiff > roundLength * 1000) {
+        prevField = pixelValues;
         initTimerDB();
-    } else if (timeDiff <= 10000) {
-        timer.innerHTML = floor(timeDiff / 1000);
+        initPixelsDB();
+    } else if (timeDiff <= roundLength * 1000) {
+        timer.innerHTML = roundLength - floor(timeDiff / 1000);
     }
+}
 
+function drawTimer() {
+    var barWidth = 10 * roundLength;
+    var width = barWidth / (roundLength * 1000);
+    var padding = (800 - barWidth) / 2;
+    if (timeDiff > (roundLength - 10) * 1000) {
+        fill('Tomato');
+    } else {
+        fill('DimGray');
+    }
+    noStroke();
+    if (timeDiff > (roundLength - 10) * 1000) {
+        rect(padding + random(1, 5), 840 + random(1, 5), floor(timeDiff * width / 10) * 10, 20);
+    } else {
+        rect(padding, 840, floor(timeDiff * width / 10) * 10, 20);
+    }
+}
+
+function drawPrevField(width, height) {
+    if (prevField != undefined) {
+        for (var col = 0; col < width / 2; col++) {
+            for (var row = 0; row < height / 2; row++) {
+                drawPixel(col, row, prevField, 2, 820, 0)
+            }
+        }
+    }
 }
 
 window.addEventListener("unload", function (e) {
@@ -328,11 +359,13 @@ window.addEventListener("unload", function (e) {
 
 function draw() {
     // background(238);
-    background(100);
+    background(255);
     drawGrid(field.width, field.height);
     updateScore(field.width, field.height);
     drawScore();
     text(floor(frameRate()), 100, 100);
     showReticle();
     updateTimer();
+    drawTimer();
+    drawPrevField(80, 80);
 }
