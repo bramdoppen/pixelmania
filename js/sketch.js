@@ -2,13 +2,20 @@ var database;
 var mySound;
 var canvas;
 var pixelValues = [];
+var prevPixelValues = [];
 var prevField;
+var readyToPlay = false;
+var allPlayersReady = false;
 var fr = 30;
 var nosound;
+var loggedIn = false;
 var localTime;
 var serverTime;
 var timeDiff;
+var currentActiveUsers = 0;
+var gameStarted = false;
 var roundLength = 60;
+var usersReady = 0;
 var field = {
     width: 800,
     height: 800
@@ -32,9 +39,10 @@ function preload() {
 function setup() {
     pixelDensity(1);
     frameRate(fr);
+    textFont('Courier New');
     // noCursor();
     localTime = new Date().getTime();
-    canvas = createCanvas(900, 900);
+    canvas = createCanvas(1000, 1000);
     canvas.parent('canvasContainer');
     nosound = ceil(field.width / 20) * ceil(field.height / 20);
     console.log(nosound);
@@ -54,11 +62,13 @@ function setup() {
 
     getServerTime();
 
-    setToActive();
     initializePixelValues(field.width, field.height);
     updatePixelValues(field.width, field.height);
+    initializePrevPixelValues(field.width, field.height);
+    updatePrevPixelValues(field.width, field.height);
 
     getButtonFromDB();
+    usersLoggedIn();
 }
 
 function getServerTime() {
@@ -125,22 +135,30 @@ function changeActiveColorSetup(colorCode) {
     activeColorButton.className = "activeColor";
 }
 
+function usersLoggedIn() {
+    var ref = database.ref('activeUsers');
+    ref.on('value', function(snapshot) {
+        var activeUsers = snapshot.val();
+        currentActiveUsers = activeUsers;
+    }, errData);
+}
+
 function setToActive() {
-    var active = database.ref('activeUsers');
-    active.once('value', function(snapshot) {
+    var ref = database.ref('activeUsers');
+    ref.once('value', function(snapshot) {
         var activeUsers = snapshot.val();
         activeUsers = activeUsers + 1;
-        active.set(activeUsers);
+        ref.set(activeUsers);
         console.log('SET TO ACTIVE');
     }, errData);
 }
 
 function setToInactive() {
-    var inactive = database.ref('activeUsers');
-    inactive.once('value', function(snapshot) {
+    var ref = database.ref('activeUsers');
+    ref.once('value', function(snapshot) {
         var activeUsers = snapshot.val();
         activeUsers = activeUsers - 1;
-        inactive.set(activeUsers);
+        ref.set(activeUsers);
         console.log('SET TO INACTIVE');
     }, errData);
 }
@@ -157,7 +175,7 @@ function initializePixelValues(width, height) {
 function updatePixelValues(width, height) {
     for (var col = 0; col < width / 20; col++) {
         for (var row = 0; row < height / 20; row++) {
-            getPixelValue(col, row)
+            getPixelValue(col, row);
         }
     }
 }
@@ -167,6 +185,31 @@ function getPixelValue(col, row) {
     ref.on('value', function(snapshot) {
         var colorValue = snapshot.val();
         pixelValues[col][row] = colorValue;
+    }, errData);
+}
+
+function initializePrevPixelValues(width, height) {
+    for (var col = 0; col < width / 20; col++) {
+        prevPixelValues.push([]);
+        for (var row = 0; row < height / 20; row++) {
+            prevPixelValues[col][row] = 255;
+        }
+    }
+}
+
+function updatePrevPixelValues(width, height) {
+    for (var col = 0; col < width / 20; col++) {
+        for (var row = 0; row < height / 20; row++) {
+            getPrevPixelValue(col, row)
+        }
+    }
+}
+
+function getPrevPixelValue(col, row) {
+    var ref = database.ref('prevField/' + col + '/' + row);
+    ref.on('value', function(snapshot) {
+        var colorValue = snapshot.val();
+        prevPixelValues[col][row] = colorValue;
     }, errData);
 }
 
@@ -222,7 +265,6 @@ function drawScore() {
 function drawTeam(ratio, y) {
     fill('DimGray');
     textAlign('center');
-    textFont('Courier New');
     textStyle(BOLD);
     textSize(16);
     text(team1, y, 40 + team1 / 2 * ratio);
@@ -247,7 +289,6 @@ function showCurrentLeader(ratio) {
     } else {
         fill('DimGray');
         textAlign('LEFT');
-        textFont('Courier New');
         textStyle(BOLD);
         textSize(16);
         text('TIE', 80 + (team1 + team2 + team3 + team4) * ratio, 855);
@@ -262,14 +303,6 @@ function showReticle() {
         stroke(255, 100, 0);
         strokeWeight(1);
         rect(x * 20, y * 20, 20, 20);
-        // switch (pixelValues[x][y]) {
-        //     case 'White': fill('DarkTurquoise'); noStroke(); break;
-        //     case 'DarkTurquoise': fill('GreenYellow'); noStroke(); break;
-        //     case 'GreenYellow': fill('Tomato'); noStroke(); break;
-        //     case 'Tomato': fill('MediumVioletRed'); noStroke(); break;
-        //     case 'MediumVioletRed': fill('DimGray'); noStroke(); break;
-        //     case 'DimGray': fill('White'); stroke(255, 100, 0); break;
-        // }
         fill(activeColor);
         if (activeColor == 'White') {
             stroke(255, 100, 0);
@@ -281,10 +314,29 @@ function showReticle() {
 }
 
 function mousePressed() {
-    // if (mouseButton == LEFT) {
+    if (mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height ) {
         changeColor();
-    // }
-    // prevent default
+    }
+    if (mouseX > 840 && mouseX < 900 && mouseY > 840 && mouseY < 860 ) {
+        if (loggedIn == false) {
+            setToActive();
+            console.log('Login succesful');
+            loggedIn = true;
+        } else {
+            setToInactive();
+            console.log('Logout succesful');
+            loggedIn = false;
+        }
+    }
+    if (mouseX > 840 && mouseX < 900 && mouseY > 760 && mouseY < 780 ) {
+        if (readyToPlay == false) {
+            console.log('Ready');
+            readyToPlay = true;
+        } else {
+            console.log('Not Ready');
+            readyToPlay = false;
+        }
+    }
     return false;
 }
 
@@ -294,15 +346,6 @@ function changeColor() {
         var y = floor(mouseY / 20);
         var ref = database.ref('pixels/' + x + '/' + y + '/color');
         ref.once('value', function(snapshot) {
-            // pixelcolor = snapshot.val();
-            // switch (pixelcolor) {
-            //     case 'White': ref.set('DarkTurquoise'); break;
-            //     case 'DarkTurquoise': ref.set('GreenYellow'); break;
-            //     case 'GreenYellow': ref.set('Tomato'); break;
-            //     case 'Tomato': ref.set('MediumVioletRed'); break;
-            //     case 'MediumVioletRed': ref.set('DimGray'); break;
-            //     case 'DimGray': ref.set('White'); break;
-            //     default: ref.set('White');
             ref.set(activeColor);
         }, errData);
     }
@@ -318,11 +361,18 @@ function updateTimer() {
     timeDiff = floor(new Date().getTime() - serverTime);
     if (timeDiff > roundLength * 1000) {
         prevField = pixelValues;
-        initTimerDB();
-        initPixelsDB();
+        savePrevField();
+        gameLobby();
     } else if (timeDiff <= roundLength * 1000) {
-        timer.innerHTML = roundLength - floor(timeDiff / 1000);
+        // timer.innerHTML = roundLength - floor(timeDiff / 1000);
     }
+}
+
+function savePrevField() {
+    var ref = database.ref('prevField');
+    ref.once('value', function(snapshot) {
+        ref.set(pixelValues);
+    }, errData);
 }
 
 function drawTimer() {
@@ -343,29 +393,92 @@ function drawTimer() {
 }
 
 function drawPrevField(width, height) {
-    if (prevField != undefined) {
-        for (var col = 0; col < width / 2; col++) {
-            for (var row = 0; row < height / 2; row++) {
-                drawPixel(col, row, prevField, 2, 820, 0)
-            }
+    for (var col = 0; col < width / 2; col++) {
+        for (var row = 0; row < height / 2; row++) {
+            drawPixel(col, row, prevPixelValues, 2, 920, 0)
         }
     }
 }
 
-window.addEventListener("unload", function (e) {
-    setToInactive();
-    console.log('ELVIS HAS LEFT THE BUILDING');
-});
+function drawLoginandoutButton() {
+    if (loggedIn == true) {
+        fill('GreenYellow');
+    } else {
+        fill('Tomato');
+    }
+    noStroke();
+    rect(840, 840, 60, 20);
+
+    textSize(12);
+    textAlign(CENTER);
+    if (loggedIn == true) {
+        fill('DimGray');
+        text('logout', 870, 854);
+    } else {
+        fill('White');
+        text('login', 870, 854);
+    }
+}
+
+function drawReadyButton() {
+    if (readyToPlay) {
+        fill('GreenYellow');
+    } else {
+        fill('Tomato');
+    }
+    noStroke();
+    rect(840, 760, 60, 20);
+
+    textSize(12);
+    textAlign(CENTER);
+    if (readyToPlay) {
+        fill('DimGray');
+        text('not ready', 870, 774);
+    } else {
+        fill('White');
+        text('ready', 870, 774);
+    }
+}
+
+function drawActiveUsers() {
+    noStroke();
+    textSize(12);
+    textAlign(CENTER);
+    fill('DimGray');
+    text('Logged in: ' + currentActiveUsers, 870, 100);
+}
+
+function drawWaitingScreen() {
+    noStroke();
+    textSize(24);
+    textAlign(CENTER);
+    fill('DimGray');
+    rect(270, 370, 260, 40);
+    fill('White');
+    text('Start a new round', 400, 400);
+}
+
+function gameLobby() {
+    initTimerDB();
+    initPixelsDB();
+}
 
 function draw() {
-    // background(238);
-    background(255);
-    drawGrid(field.width, field.height);
-    updateScore(field.width, field.height);
-    drawScore();
-    text(floor(frameRate()), 100, 100);
-    showReticle();
-    updateTimer();
-    drawTimer();
-    drawPrevField(80, 80);
+    background(238);
+    // background(255);
+    if (allPlayersReady) {
+        drawGrid(field.width, field.height);
+        updateScore(field.width, field.height);
+        drawScore();
+        // text(floor(frameRate()), 100, 100);
+        showReticle();
+        updateTimer();
+        drawTimer();
+        drawPrevField(80, 80);
+    } else {
+        drawWaitingScreen();
+        drawReadyButton();
+    }
+    drawLoginandoutButton();
+    drawActiveUsers();
 }

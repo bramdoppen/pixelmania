@@ -38,7 +38,7 @@ function initPixelsDB() {
         for (var j = 0; j < 800 / 20; j++) {
             var ref = database.ref('pixels/' + i + '/' + j);
             var data = {
-                color: 'White'
+                color: 238
             }
             ref.set(data);
         }
