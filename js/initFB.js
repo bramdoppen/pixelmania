@@ -2,10 +2,10 @@ var database;
 var canvas;
 var fr = 30;
 var field = { width: 800, height: 800 }
-var colorArray = ['DarkTurquoise', 'GreenYellow', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
+var colorArray = ['DarkTurquoise', 'LightPink', 'GreenYellow', 'Peru', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
 
 function setup() {
-    canvas = createCanvas(900, 900);
+    canvas = createCanvas(1000, 1000);
     canvas.parent('canvasContainer');
 
     // Initialize Firebase
@@ -26,10 +26,9 @@ function initColorButtonsDB(colorArray) {
         var colorButtons = database.ref('colorButtons/' + colorArray[i]);
         var data = {
             active: 1,
-            colorCode: String(colorArray[i])
+            colorCode: colorArray[i]
         }
         colorButtons.set(data);
-        return colorArray[i];
     }
 }
 

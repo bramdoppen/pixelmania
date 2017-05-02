@@ -14,21 +14,22 @@ var serverTime;
 var timeDiff;
 var currentActiveUsers = 0;
 var gameStarted = false;
-var roundLength = 60;
+var roundLength = 600;
 var usersReady = 0;
 var field = {
     width: 800,
     height: 800
 }
-var team1 = 0;
-var team2 = 0;
-var team3 = 0;
-var team4 = 0;
+var teamScore = [0, 0, 0, 0];
 
 var activeColor = 'White';
-var activeColorIdentifier = 'Tomato';
+var activeColorIdentifier;
 
-var colorArray = ['DarkTurquoise', 'GreenYellow', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
+var showSelector = false;
+var lastClickedX;
+var lastClickedY;
+
+var colorArray = ['DarkTurquoise', 'LightPink', 'GreenYellow', 'Peru', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
 var buttonKeys;
 
 function preload() {
@@ -132,6 +133,8 @@ function changeActiveColor(colorCode) {
 function changeActiveColorSetup(colorCode) {
     var activeColorButton = document.getElementById(colorCode);
 
+    activeColorIdentifier = buttonKeys[buttonKeys.length - 1];
+    activeColor = colorCode;
     activeColorButton.className = "activeColor";
 }
 
@@ -229,35 +232,35 @@ function drawPixel(col, row, arr, pixelSize, offsetX, offsetY) {
 }
 
 function updateScore(width, height) {
-    team1 = 0; team2 = 0; team3 = 0; team4 = 0;
+    teamScore[0] = 0; teamScore[1] = 0; teamScore[2] = 0; teamScore[3] = 0;
     for (var col = 0; col < width / 20; col++) {
         for (var row = 0; row < height / 20; row++) {
             var color = countColors(col, row);
         }
     }
-    // console.log(team1, team2, team3, team4);
+    // console.log(teamScore[0], teamScore[1], teamScore[2], teamScore[3]);
 }
 
 function countColors(col, row) {
     switch (pixelValues[col][row]) {
-        case 'DarkTurquoise': team1++; break;
-        case 'GreenYellow': team2++; break;
-        case 'Tomato': team3++; break;
-        case 'MediumVioletRed': team4++; break;
+        case 'DarkTurquoise': teamScore[0]++; break;
+        case 'GreenYellow': teamScore[1]++; break;
+        case 'Tomato': teamScore[2]++; break;
+        case 'MediumVioletRed': teamScore[3]++; break;
     }
 }
 
 function drawScore() {
-    var total = team1 + team2 + team3 + team4;
+    var total = teamScore[0] + teamScore[1] + teamScore[2] + teamScore[3];
     var ratio = 720 / total;
     fill('DarkTurquoise');
-    rect(840, 40, 20, team1 * ratio);
+    rect(840, 40, 20, teamScore[0] * ratio);
     fill('GreenYellow');
-    rect(840, 40 + team1 * ratio, 20, team2 * ratio);
+    rect(840, 40 + teamScore[0] * ratio, 20, teamScore[1] * ratio);
     fill('Tomato');
-    rect(840, 40 + (team1 + team2) * ratio, 20, team3 * ratio);
+    rect(840, 40 + (teamScore[0] + teamScore[1]) * ratio, 20, teamScore[2] * ratio);
     fill('MediumVioletRed');
-    rect(840, 40 + (team1 + team2 + team3) * ratio, 20, team4 * ratio);
+    rect(840, 40 + (teamScore[0] + teamScore[1] + teamScore[2]) * ratio, 20, teamScore[3] * ratio);
     // drawTeam(ratio, 880);
     showCurrentLeader(ratio);
 }
@@ -267,54 +270,60 @@ function drawTeam(ratio, y) {
     textAlign('center');
     textStyle(BOLD);
     textSize(16);
-    text(team1, y, 40 + team1 / 2 * ratio);
-    text(team2, y, 40 + (team1 + team2 / 2) * ratio);
-    text(team3, y, 40 + (team1 + team2 + team3 / 2) * ratio);
-    text(team4, y, 40 + (team1 + team2 + team3 + team4 / 2) * ratio);
+    text(teamScore[0], y, 40 + teamScore[0] / 2 * ratio);
+    text(teamScore[1], y, 40 + (teamScore[0] + teamScore[1] / 2) * ratio);
+    text(teamScore[2], y, 40 + (teamScore[0] + teamScore[1] + teamScore[2] / 2) * ratio);
+    text(teamScore[3], y, 40 + (teamScore[0] + teamScore[1] + teamScore[2] + teamScore[3] / 2) * ratio);
 }
 
 function showCurrentLeader(ratio) {
-    if (team1 > team2 && team1 > team3 && team1 > team4) {
+    if (teamScore[0] > teamScore[1] && teamScore[0] > teamScore[2] && teamScore[0] > teamScore[3]) {
         fill('DarkTurquoise');
-        rect(840 - 8, 40, 3, team1 * ratio);
-    } else if (team2 > team1 && team2 > team3 && team2 > team4) {
+        rect(840 - 8, 40, 3, teamScore[0] * ratio);
+    } else if (teamScore[1] > teamScore[0] && teamScore[1] > teamScore[2] && teamScore[1] > teamScore[3]) {
         fill('GreenYellow');
-        rect(840 - 8, 40 + team1 * ratio, 3, team2 * ratio);
-    } else if (team3 > team1 && team3 > team2 && team3 > team4) {
+        rect(840 - 8, 40 + teamScore[0] * ratio, 3, teamScore[1] * ratio);
+    } else if (teamScore[2] > teamScore[0] && teamScore[2] > teamScore[1] && teamScore[2] > teamScore[3]) {
         fill('Tomato');
-        rect(840 - 8, 40 + (team1 + team2) * ratio, 3, team3 * ratio);
-    } else if (team4 > team1 && team4 > team2 && team4 > team3) {
+        rect(840 - 8, 40 + (teamScore[0] + teamScore[1]) * ratio, 3, teamScore[2] * ratio);
+    } else if (teamScore[3] > teamScore[0] && teamScore[3] > teamScore[1] && teamScore[3] > teamScore[2]) {
         fill('MediumVioletRed');
-        rect(840 - 8, 40 + (team1 + team2 + team3) * ratio, 3, team4 * ratio);
+        rect(840 - 8, 40 + (teamScore[0] + teamScore[1] + teamScore[2]) * ratio, 3, teamScore[3] * ratio);
     } else {
         fill('DimGray');
         textAlign('LEFT');
         textStyle(BOLD);
         textSize(16);
-        text('TIE', 80 + (team1 + team2 + team3 + team4) * ratio, 855);
+        text('TIE', 80 + (teamScore[0] + teamScore[1] + teamScore[2] + teamScore[3]) * ratio, 855);
     }
 }
 
 function showReticle() {
-    var x = floor(mouseX / 20);
-    var y = floor(mouseY / 20);
-    if (x * 20 < field.width && y * 20 < field.height) {
-        noFill();
-        stroke(255, 100, 0);
-        strokeWeight(1);
-        rect(x * 20, y * 20, 20, 20);
-        fill(activeColor);
-        if (activeColor == 'White') {
+    if (showSelector == false) {
+        var x = floor(mouseX / 20);
+        var y = floor(mouseY / 20);
+        if (x * 20 < field.width && y * 20 < field.height) {
+            noFill();
             stroke(255, 100, 0);
-        } else {
-            noStroke();
+            strokeWeight(1);
+            rect(x * 20, y * 20, 20, 20);
+            fill(activeColor);
+            if (activeColor == 'White') {
+                stroke(255, 100, 0);
+            } else {
+                noStroke();
+            }
+            rect(x * 20 + 10, y * 20 - 10, 20, 20);
         }
-        rect(x * 20 + 10, y * 20 - 10, 20, 20);
     }
 }
 
 function mousePressed() {
-    if (mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height ) {
+    if (mouseButton == RIGHT && mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height) {
+        lastClickedX = mouseX;
+        lastClickedY = mouseY;
+    }
+    if (mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height) {
         changeColor();
     }
     if (mouseX > 840 && mouseX < 900 && mouseY > 840 && mouseY < 860 ) {
@@ -338,6 +347,18 @@ function mousePressed() {
         }
     }
     return false;
+}
+
+function mouseDragged() {
+    if (mouseButton == RIGHT && mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height) {
+        showSelector = true;
+    }
+}
+
+function mouseReleased() {
+    if (mouseButton == RIGHT) {
+        showSelector = false;
+    }
 }
 
 function changeColor() {
@@ -364,7 +385,7 @@ function updateTimer() {
         savePrevField();
         gameLobby();
     } else if (timeDiff <= roundLength * 1000) {
-        // timer.innerHTML = roundLength - floor(timeDiff / 1000);
+        timer.innerHTML = roundLength - floor(timeDiff / 1000);
     }
 }
 
@@ -463,10 +484,30 @@ function gameLobby() {
     initPixelsDB();
 }
 
+function drawSelector() {
+    var x = floor(lastClickedX / 20) * 20;
+    var y = floor(lastClickedY / 20) * 20;
+    var middleOfArray = floor((colorArray.length) / 2);
+    if (showSelector) {
+        fill(238);
+        rect(x - 10 + 30 * (0 - middleOfArray), y - 50, 10 + ((colorArray.length) * 30), 40);
+        for (var i = 0; i < colorArray.length; i++) {
+            fill(colorArray[i]);
+            if (mouseX > x + 30 * (i - middleOfArray) && mouseX < x + 30 + 30 * (i - middleOfArray) && mouseY > y - 40 && mouseY < y - 20 ) {
+                strokeWeight(5);
+                stroke(238);
+            } else {
+                noStroke();
+            }
+            rect(x + 30 * (i - middleOfArray), y - 40, 20, 20);
+        }
+    }
+}
+
 function draw() {
     background(238);
     // background(255);
-    if (allPlayersReady) {
+    // if (allPlayersReady) {
         drawGrid(field.width, field.height);
         updateScore(field.width, field.height);
         drawScore();
@@ -475,10 +516,11 @@ function draw() {
         updateTimer();
         drawTimer();
         drawPrevField(80, 80);
-    } else {
-        drawWaitingScreen();
-        drawReadyButton();
-    }
+    // } else {
+    //     drawWaitingScreen();
+    //     drawReadyButton();
+    // }
     drawLoginandoutButton();
     drawActiveUsers();
+    drawSelector();
 }
