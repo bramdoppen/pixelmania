@@ -6,16 +6,23 @@
     <script language="javascript" src="libraries/p5.sound.js"></script>
     <script src="https://www.gstatic.com/firebasejs/3.7.5/firebase.js"></script>
 
+    <script language="javascript" type="text/javascript" src="js/initFB.js"></script>
     <script language="javascript" type="text/javascript" src="js/sketch.js"></script>
-    <script language="javascript" type="text/javascript" src="js/login.js"></script>
+    <script src="js/login.js"></script>
 
-    <style> body {padding: 0; margin: 0;} </style>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 
-<body>
-
-
-<div id="canvasContainer"></div>
-
+<body oncontextmenu="return false">
+<button onclick = "loginWithGoogle()">Google Signin</button>
+<button onclick = "signOutWithGoogle()">Google Signout</button>
+<p id="login_username"></p>
+    <div id="canvasContainer"></div>
+    <div id="colorSelection">
+        <ul id="colorButtonListParent">
+        </ul>
+    </div>
+    <div id="timer"></div>
 </body>
 </html>
+
