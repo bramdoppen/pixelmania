@@ -508,14 +508,14 @@ function draw() {
     background(238);
     // background(255);
     // if (allPlayersReady) {
-        drawGrid(field.width, field.height);
-        updateScore(field.width, field.height);
-        drawScore();
-        // text(floor(frameRate()), 100, 100);
-        showReticle();
-        updateTimer();
-        drawTimer();
-        drawPrevField(80, 80);
+    drawGrid(field.width, field.height);
+    updateScore(field.width, field.height);
+    drawScore();
+    // text(floor(frameRate()), 100, 100);
+    showReticle();
+    updateTimer();
+    drawTimer();
+    drawPrevField(80, 80);
     // } else {
     //     drawWaitingScreen();
     //     drawReadyButton();
