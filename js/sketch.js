@@ -29,6 +29,8 @@ var showSelector = false;
 var lastClickedX;
 var lastClickedY;
 
+var specialAttack = false;
+
 var colorArray = ['DarkTurquoise', 'LightPink', 'GreenYellow', 'Peru', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
 var buttonKeys;
 
@@ -300,20 +302,33 @@ function showCurrentLeader(ratio) {
 
 function showReticle() {
     if (showSelector == false) {
-        var x = floor(mouseX / 20);
-        var y = floor(mouseY / 20);
-        if (x * 20 < field.width && y * 20 < field.height) {
+        var x = floor(mouseX / 20)*20;
+        var y = floor(mouseY / 20)*20;
+
+        if (keyIsDown(ALT) && specialAttack && x < field.width && y < field.height) {
             noFill();
             stroke(255, 100, 0);
             strokeWeight(1);
-            rect(x * 20, y * 20, 20, 20);
+            rect(x-20, y-20, 60, 60);
             fill(activeColor);
-            if (activeColor == 'White') {
-                stroke(255, 100, 0);
-            } else {
-                noStroke();
-            }
-            rect(x * 20 + 10, y * 20 - 10, 20, 20);
+                if (activeColor == 'White') {
+                    stroke(255, 100, 0);
+                } else {
+                    noStroke();
+                }
+            rect(x + 10, y - 10, 20, 20);
+        } else {
+            noFill();
+            stroke(255, 100, 0);
+            strokeWeight(1);
+            rect(x, y, 20, 20);
+            fill(activeColor);
+                if (activeColor == 'White') {
+                    stroke(255, 100, 0);
+                } else {
+                    noStroke();
+                }
+            rect(x + 10, y - 10, 20, 20);
         }
     }
 }
@@ -369,6 +384,17 @@ function changeColor() {
         ref.once('value', function(snapshot) {
             ref.set(activeColor);
         }, errData);
+
+        if(keyIsDown(ALT) && specialAttack){
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    var ref = database.ref('pixels/' + (x - 1 + j) + '/' + (y - 1 + i) + '/color');
+                    ref.once('value', function(snapshot) {
+                        ref.set(activeColor);
+                    }, errData);
+                }
+            }
+        }
     }
 }
 
