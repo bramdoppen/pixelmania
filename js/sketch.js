@@ -423,9 +423,9 @@ function savePrevField() {
 }
 
 function drawTimer() {
-    var barWidth = 10 * roundLength;
+    var barWidth = 600;
     var width = barWidth / (roundLength * 1000);
-    var padding = (800 - barWidth) / 2;
+    var padding = 100;
     if (timeDiff > (roundLength - 10) * 1000) {
         fill('Tomato');
     } else {
