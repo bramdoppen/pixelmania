@@ -54,6 +54,7 @@ function getServerTime() {
         console.log(serverTime);
     }, errData);
 }
+
 function getLoggedInUsers() {
     // var ref = database.ref('users');
     // ref.on('value', function(snapshot) {
@@ -72,7 +73,7 @@ function getLoggedInUsers() {
     var usersInDb = firebase.database().ref('users/');
     usersInDb.on('child_added', function(data) {
         console.log(data.key, data.val().username);
-        document.getElementById("logged-in-users").innerHTML += "<div id='"+data.key+"' class='user'><img src=' "+ data.val().profile_picture +" '><p class='name'>"+ data.val().username +"</p></div>";
+        document.getElementById("logged-in-users").innerHTML += "<div id='" + data.key + "' class='user'><img src=' " + data.val().profile_picture + " '><p class='name'>" + data.val().username + "</p></div>";
 
     });
     usersInDb.on('child_removed', function(data) {
@@ -82,32 +83,38 @@ function getLoggedInUsers() {
 }
 
 function getButtonFromDB() {
-    var buttonsPad = database.ref('colorButtons');
+    // var buttonsPad = database.ref('colorButtons');
+    var buttonsPad = database.ref('images/firefox/palette');
     buttonsPad.on("value", gotButtonData, errButton);
 }
 
 function gotButtonData(data) {
     // clear previous list
     var buttonListings = selectAll('.buttonListing');
-    for (var i = 0; i < buttonListings.length; i++){
+    for (var i = 0; i < buttonListings.length; i++) {
         buttonListings[i].remove();
     }
     var buttons = data.val();
+    console.log(buttons);
     buttonKeys = Object.keys(buttons);
+    console.log(buttonKeys);
     for (var i = 0; i < buttonKeys.length; i++) {
         var k = buttonKeys[i];
-        var colorCode = buttons[k].colorCode;
+        var colorCode = buttons[k];
         var buttonLi = createElement("li");
         buttonLi.parent("colorButtonListParent");
-        var colorButton = createElement("button", colorCode);
+        var colorTag = colorCode.substr(1);
+        var colorButton = createElement("button", colorTag);
         buttonLi.child(colorButton);
         buttonLi.class('buttonListing');
-        colorButton.id(colorCode);
+        colorButton.id(colorTag);
         colorButton.style("background-color", colorCode);
-        console.log(i, colorCode);
+        console.log(i, colorCode, colorTag);
 
         function makeColorClickHandler(color) {
-            return function() { changeActiveColor(color) }
+            return function() {
+                changeActiveColor(color)
+            }
         }
 
         colorButton.mousePressed(makeColorClickHandler(colorCode));
@@ -179,98 +186,68 @@ function drawPixel(col, row, arr, pixelSize, offsetX, offsetY) {
     rect(offsetX + col * pixelSize, offsetY + row * pixelSize, pixelSize, pixelSize);
 }
 
-// function updateScore(width, height) {
-//     teamScore[0] = 0; teamScore[1] = 0; teamScore[2] = 0; teamScore[3] = 0;
-//     for (var col = 0; col < width / 20; col++) {
-//         for (var row = 0; row < height / 20; row++) {
-//             var color = countColors(col, row);
-//         }
-//     }
-//     // console.log(teamScore[0], teamScore[1], teamScore[2], teamScore[3]);
-// }
-//
-// function countColors(col, row) {
-//     switch (pixelValues[col][row]) {
-//         case 'DarkTurquoise': teamScore[0]++; break;
-//         case 'GreenYellow': teamScore[1]++; break;
-//         case 'Tomato': teamScore[2]++; break;
-//         case 'MediumVioletRed': teamScore[3]++; break;
-//     }
-// }
-//
 function drawScore() {
-    var total = teamScore[0] + teamScore[1] + teamScore[2] + teamScore[3];
+    var total = teamScore[0] + teamScore[1];
     var ratio = 720 / total;
     fill('DarkTurquoise');
     rect(840, 40, 20, teamScore[0] * ratio);
     fill('GreenYellow');
     rect(840, 40 + teamScore[0] * ratio, 20, teamScore[1] * ratio);
-    fill('Tomato');
-    rect(840, 40 + (teamScore[0] + teamScore[1]) * ratio, 20, teamScore[2] * ratio);
-    fill('MediumVioletRed');
-    rect(840, 40 + (teamScore[0] + teamScore[1] + teamScore[2]) * ratio, 20, teamScore[3] * ratio);
-    // drawTeam(ratio, 880);
+    drawTeam(ratio, 880);
     showCurrentLeader(ratio);
 }
-//
-// function drawTeam(ratio, y) {
-//     fill('DimGray');
-//     textAlign('center');
-//     textStyle(BOLD);
-//     textSize(16);
-//     text(teamScore[0], y, 40 + teamScore[0] / 2 * ratio);
-//     text(teamScore[1], y, 40 + (teamScore[0] + teamScore[1] / 2) * ratio);
-//     text(teamScore[2], y, 40 + (teamScore[0] + teamScore[1] + teamScore[2] / 2) * ratio);
-//     text(teamScore[3], y, 40 + (teamScore[0] + teamScore[1] + teamScore[2] + teamScore[3] / 2) * ratio);
-// }
-//
-// function showCurrentLeader(ratio) {
-//     if (teamScore[0] > teamScore[1] && teamScore[0] > teamScore[2] && teamScore[0] > teamScore[3]) {
-//         fill('DarkTurquoise');
-//         rect(840 - 8, 40, 3, teamScore[0] * ratio);
-//     } else if (teamScore[1] > teamScore[0] && teamScore[1] > teamScore[2] && teamScore[1] > teamScore[3]) {
-//         fill('GreenYellow');
-//         rect(840 - 8, 40 + teamScore[0] * ratio, 3, teamScore[1] * ratio);
-//     } else if (teamScore[2] > teamScore[0] && teamScore[2] > teamScore[1] && teamScore[2] > teamScore[3]) {
-//         fill('Tomato');
-//         rect(840 - 8, 40 + (teamScore[0] + teamScore[1]) * ratio, 3, teamScore[2] * ratio);
-//     } else if (teamScore[3] > teamScore[0] && teamScore[3] > teamScore[1] && teamScore[3] > teamScore[2]) {
-//         fill('MediumVioletRed');
-//         rect(840 - 8, 40 + (teamScore[0] + teamScore[1] + teamScore[2]) * ratio, 3, teamScore[3] * ratio);
-//     } else {
-//         fill('DimGray');
-//         textAlign('LEFT');
-//         textStyle(BOLD);
-//         textSize(16);
-//         text('TIE', 80 + (teamScore[0] + teamScore[1] + teamScore[2] + teamScore[3]) * ratio, 855);
-//     }
-// }
+
+function drawTeam(ratio, y) {
+    fill('DimGray');
+    textAlign('center');
+    textStyle(BOLD);
+    textSize(16);
+    text(teamScore[0], y, 40 + teamScore[0] / 2 * ratio);
+    text(teamScore[1], y, 40 + (teamScore[0] + teamScore[1] / 2) * ratio);
+}
+
+function showCurrentLeader(ratio) {
+    if (teamScore[0] > teamScore[1]) {
+        fill('DarkTurquoise');
+        rect(840 - 8, 40, 3, teamScore[0] * ratio);
+    } else if (teamScore[1] > teamScore[0]) {
+        fill('GreenYellow');
+        rect(840 - 8, 40 + teamScore[0] * ratio, 3, teamScore[1] * ratio);
+    } else {
+        fill('DimGray');
+        textAlign('LEFT');
+        textStyle(BOLD);
+        textSize(16);
+        // text('TIED', 80 + (teamScore[0] + teamScore[1]) * ratio, 855);
+        text('TIED', 900, 405);
+    }
+}
 
 function showReticle() {
     if (showSelector == false) {
-        var x = floor(mouseX / 20)*20;
-        var y = floor(mouseY / 20)*20;
+        var x = floor(mouseX / 20) * 20;
+        var y = floor(mouseY / 20) * 20;
         noFill();
         stroke(255, 100, 0);
         strokeWeight(1);
 
         if (keyIsDown(ALT) && specialAttack && x < field.width && y < field.height) {
-            rect(x-20, y-20, 60, 60);
+            rect(x - 20, y - 20, 60, 60);
             fill(activeColor);
-                if (activeColor == 'White') {
-                    stroke(255, 100, 0);
-                } else {
-                    noStroke();
-                }
+            if (activeColor == 'White') {
+                stroke(255, 100, 0);
+            } else {
+                noStroke();
+            }
             rect(x + 10, y - 10, 20, 20);
-        } else if(x < field.width && y < field.height){
+        } else if (x < field.width && y < field.height) {
             rect(x, y, 20, 20);
             fill(activeColor);
-                if (activeColor == 'White') {
-                    stroke(255, 100, 0);
-                } else {
-                    noStroke();
-                }
+            if (activeColor == 'White') {
+                stroke(255, 100, 0);
+            } else {
+                noStroke();
+            }
             rect(x + 10, y - 10, 20, 20);
         }
     }
@@ -284,7 +261,7 @@ function mousePressed() {
     if (mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height) {
         changeColor();
     }
-    if (mouseX > 840 && mouseX < 900 && mouseY > 840 && mouseY < 860 ) {
+    if (mouseX > 840 && mouseX < 900 && mouseY > 840 && mouseY < 860) {
         if (loggedIn == false) {
             setToActive();
             console.log('Login succesful');
@@ -295,7 +272,7 @@ function mousePressed() {
             loggedIn = false;
         }
     }
-    if (mouseX > 840 && mouseX < 900 && mouseY > 760 && mouseY < 780 ) {
+    if (mouseX > 840 && mouseX < 900 && mouseY > 760 && mouseY < 780) {
         if (readyToPlay == false) {
             console.log('Ready');
             readyToPlay = true;
@@ -328,7 +305,7 @@ function changeColor() {
             ref.set(activeColor);
         }, errData);
 
-        if(keyIsDown(ALT) && specialAttack){
+        if (keyIsDown(ALT) && specialAttack) {
             for (var i = 0; i < 3; i++) {
                 for (var j = 0; j < 3; j++) {
                     var ref = database.ref('pixels/' + (x - 1 + j) + '/' + (y - 1 + i) + '/color');
@@ -387,7 +364,7 @@ function drawSelector() {
         rect(x - 10 + 30 * (0 - middleOfArray), y - 50, 10 + ((colorArray.length) * 30), 40);
         for (var i = 0; i < colorArray.length; i++) {
             fill(colorArray[i]);
-            if (mouseX > x + 30 * (i - middleOfArray) && mouseX < x + 30 + 30 * (i - middleOfArray) && mouseY > y - 40 && mouseY < y - 20 ) {
+            if (mouseX > x + 30 * (i - middleOfArray) && mouseX < x + 30 + 30 * (i - middleOfArray) && mouseY > y - 40 && mouseY < y - 20) {
                 strokeWeight(5);
                 stroke(238);
             } else {
@@ -403,7 +380,7 @@ function draw() {
     background(220);
     drawGrid(field.width, field.height);
     updateScore(field.width, field.height);
-    // drawScore();
+    drawScore();
     showReticle();
     updateTimer();
     drawTimer();

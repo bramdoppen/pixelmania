@@ -61,7 +61,7 @@ function getPixelValue(col, row) {
 }
 
 function updateScore(width, height) {
-    teamScore[0] = 0; teamScore[1] = 0; teamScore[2] = 0; teamScore[3] = 0;
+    teamScore[0] = 0; teamScore[1] = 0;
     for (var col = 0; col < width / 20; col++) {
         for (var row = 0; row < height / 20; row++) {
             var color = countColors(col, row);
@@ -74,8 +74,6 @@ function countColors(col, row) {
     switch (pixelValues[col][row]) {
         case 'DarkTurquoise': teamScore[0]++; break;
         case 'GreenYellow': teamScore[1]++; break;
-        case 'Tomato': teamScore[2]++; break;
-        case 'MediumVioletRed': teamScore[3]++; break;
     }
 }
 
