@@ -8,16 +8,6 @@ function setup() {
     canvas = createCanvas(1000, 1000);
     canvas.parent('canvasContainer');
 
-    // Initialize Firebase
-    var config = {
-        apiKey: "AIzaSyA-xiYdjBOjLc8n_LwMUgxM5aaMZ3pnPgg",
-        authDomain: "pixelmaker-7edd2.firebaseapp.com",
-        databaseURL: "https://pixelmaker-7edd2.firebaseio.com",
-        projectId: "pixelmaker-7edd2",
-        storageBucket: "pixelmaker-7edd2.appspot.com",
-        messagingSenderId: "213459368748"
-    };
-    firebase.initializeApp(config);
     database = firebase.database();
 }
 

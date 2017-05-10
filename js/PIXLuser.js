@@ -1,23 +1,16 @@
 var database;
 var canvas;
 var pixelValues = [];
-var readyToPlay = false;
-var allPlayersReady = false;
 var fr = 30;
-var nosound;
-var loggedIn = false;
 var localTime;
 var serverTime;
 var timeDiff;
-var currentActiveUsers = 0;
-var gameStarted = false;
 var roundLength = 600;
-var usersReady = 0;
 var field = {
     width: 800,
     height: 800
 }
-var teamScore = [0, 0, 0, 0];
+var teamScore = [0, 0];
 
 var activeColor = 'White';
 var activeColorIdentifier;
@@ -39,22 +32,10 @@ function setup() {
     pixelDensity(1);
     frameRate(fr);
     textFont('Courier New');
-    // noCursor();
     localTime = new Date().getTime();
     canvas = createCanvas(1000, 1000);
     canvas.parent('canvasContainer');
-    console.log('ELVIS HAS ENTERED THE BUILDING');
 
-    // Initialize Firebase
-    var config = {
-        apiKey: "AIzaSyA-xiYdjBOjLc8n_LwMUgxM5aaMZ3pnPgg",
-        authDomain: "pixelmaker-7edd2.firebaseapp.com",
-        databaseURL: "https://pixelmaker-7edd2.firebaseio.com",
-        projectId: "pixelmaker-7edd2",
-        storageBucket: "pixelmaker-7edd2.appspot.com",
-        messagingSenderId: "213459368748"
-    };
-    firebase.initializeApp(config);
     database = firebase.database();
 
     getServerTime();
@@ -64,7 +45,6 @@ function setup() {
     updatePixelValues(field.width, field.height);
 
     getButtonFromDB();
-    usersLoggedIn();
 }
 
 function getServerTime() {
@@ -159,34 +139,6 @@ function changeActiveColorSetup(colorCode) {
     activeColorButton.className = "activeColor";
 }
 
-function usersLoggedIn() {
-    var ref = database.ref('activeUsers');
-    ref.on('value', function(snapshot) {
-        var activeUsers = snapshot.val();
-        currentActiveUsers = activeUsers;
-    }, errData);
-}
-
-function setToActive() {
-    var ref = database.ref('activeUsers');
-    ref.once('value', function(snapshot) {
-        var activeUsers = snapshot.val();
-        activeUsers = activeUsers + 1;
-        ref.set(activeUsers);
-        console.log('SET TO ACTIVE');
-    }, errData);
-}
-
-function setToInactive() {
-    var ref = database.ref('activeUsers');
-    ref.once('value', function(snapshot) {
-        var activeUsers = snapshot.val();
-        activeUsers = activeUsers - 1;
-        ref.set(activeUsers);
-        console.log('SET TO INACTIVE');
-    }, errData);
-}
-
 function initializePixelValues(width, height) {
     for (var col = 0; col < width / 20; col++) {
         pixelValues.push([]);
@@ -227,25 +179,25 @@ function drawPixel(col, row, arr, pixelSize, offsetX, offsetY) {
     rect(offsetX + col * pixelSize, offsetY + row * pixelSize, pixelSize, pixelSize);
 }
 
-function updateScore(width, height) {
-    teamScore[0] = 0; teamScore[1] = 0; teamScore[2] = 0; teamScore[3] = 0;
-    for (var col = 0; col < width / 20; col++) {
-        for (var row = 0; row < height / 20; row++) {
-            var color = countColors(col, row);
-        }
-    }
-    // console.log(teamScore[0], teamScore[1], teamScore[2], teamScore[3]);
-}
-
-function countColors(col, row) {
-    switch (pixelValues[col][row]) {
-        case 'DarkTurquoise': teamScore[0]++; break;
-        case 'GreenYellow': teamScore[1]++; break;
-        case 'Tomato': teamScore[2]++; break;
-        case 'MediumVioletRed': teamScore[3]++; break;
-    }
-}
-
+// function updateScore(width, height) {
+//     teamScore[0] = 0; teamScore[1] = 0; teamScore[2] = 0; teamScore[3] = 0;
+//     for (var col = 0; col < width / 20; col++) {
+//         for (var row = 0; row < height / 20; row++) {
+//             var color = countColors(col, row);
+//         }
+//     }
+//     // console.log(teamScore[0], teamScore[1], teamScore[2], teamScore[3]);
+// }
+//
+// function countColors(col, row) {
+//     switch (pixelValues[col][row]) {
+//         case 'DarkTurquoise': teamScore[0]++; break;
+//         case 'GreenYellow': teamScore[1]++; break;
+//         case 'Tomato': teamScore[2]++; break;
+//         case 'MediumVioletRed': teamScore[3]++; break;
+//     }
+// }
+//
 function drawScore() {
     var total = teamScore[0] + teamScore[1] + teamScore[2] + teamScore[3];
     var ratio = 720 / total;
@@ -260,39 +212,39 @@ function drawScore() {
     // drawTeam(ratio, 880);
     showCurrentLeader(ratio);
 }
-
-function drawTeam(ratio, y) {
-    fill('DimGray');
-    textAlign('center');
-    textStyle(BOLD);
-    textSize(16);
-    text(teamScore[0], y, 40 + teamScore[0] / 2 * ratio);
-    text(teamScore[1], y, 40 + (teamScore[0] + teamScore[1] / 2) * ratio);
-    text(teamScore[2], y, 40 + (teamScore[0] + teamScore[1] + teamScore[2] / 2) * ratio);
-    text(teamScore[3], y, 40 + (teamScore[0] + teamScore[1] + teamScore[2] + teamScore[3] / 2) * ratio);
-}
-
-function showCurrentLeader(ratio) {
-    if (teamScore[0] > teamScore[1] && teamScore[0] > teamScore[2] && teamScore[0] > teamScore[3]) {
-        fill('DarkTurquoise');
-        rect(840 - 8, 40, 3, teamScore[0] * ratio);
-    } else if (teamScore[1] > teamScore[0] && teamScore[1] > teamScore[2] && teamScore[1] > teamScore[3]) {
-        fill('GreenYellow');
-        rect(840 - 8, 40 + teamScore[0] * ratio, 3, teamScore[1] * ratio);
-    } else if (teamScore[2] > teamScore[0] && teamScore[2] > teamScore[1] && teamScore[2] > teamScore[3]) {
-        fill('Tomato');
-        rect(840 - 8, 40 + (teamScore[0] + teamScore[1]) * ratio, 3, teamScore[2] * ratio);
-    } else if (teamScore[3] > teamScore[0] && teamScore[3] > teamScore[1] && teamScore[3] > teamScore[2]) {
-        fill('MediumVioletRed');
-        rect(840 - 8, 40 + (teamScore[0] + teamScore[1] + teamScore[2]) * ratio, 3, teamScore[3] * ratio);
-    } else {
-        fill('DimGray');
-        textAlign('LEFT');
-        textStyle(BOLD);
-        textSize(16);
-        text('TIE', 80 + (teamScore[0] + teamScore[1] + teamScore[2] + teamScore[3]) * ratio, 855);
-    }
-}
+//
+// function drawTeam(ratio, y) {
+//     fill('DimGray');
+//     textAlign('center');
+//     textStyle(BOLD);
+//     textSize(16);
+//     text(teamScore[0], y, 40 + teamScore[0] / 2 * ratio);
+//     text(teamScore[1], y, 40 + (teamScore[0] + teamScore[1] / 2) * ratio);
+//     text(teamScore[2], y, 40 + (teamScore[0] + teamScore[1] + teamScore[2] / 2) * ratio);
+//     text(teamScore[3], y, 40 + (teamScore[0] + teamScore[1] + teamScore[2] + teamScore[3] / 2) * ratio);
+// }
+//
+// function showCurrentLeader(ratio) {
+//     if (teamScore[0] > teamScore[1] && teamScore[0] > teamScore[2] && teamScore[0] > teamScore[3]) {
+//         fill('DarkTurquoise');
+//         rect(840 - 8, 40, 3, teamScore[0] * ratio);
+//     } else if (teamScore[1] > teamScore[0] && teamScore[1] > teamScore[2] && teamScore[1] > teamScore[3]) {
+//         fill('GreenYellow');
+//         rect(840 - 8, 40 + teamScore[0] * ratio, 3, teamScore[1] * ratio);
+//     } else if (teamScore[2] > teamScore[0] && teamScore[2] > teamScore[1] && teamScore[2] > teamScore[3]) {
+//         fill('Tomato');
+//         rect(840 - 8, 40 + (teamScore[0] + teamScore[1]) * ratio, 3, teamScore[2] * ratio);
+//     } else if (teamScore[3] > teamScore[0] && teamScore[3] > teamScore[1] && teamScore[3] > teamScore[2]) {
+//         fill('MediumVioletRed');
+//         rect(840 - 8, 40 + (teamScore[0] + teamScore[1] + teamScore[2]) * ratio, 3, teamScore[3] * ratio);
+//     } else {
+//         fill('DimGray');
+//         textAlign('LEFT');
+//         textStyle(BOLD);
+//         textSize(16);
+//         text('TIE', 80 + (teamScore[0] + teamScore[1] + teamScore[2] + teamScore[3]) * ratio, 855);
+//     }
+// }
 
 function showReticle() {
     if (showSelector == false) {
@@ -398,7 +350,6 @@ function updateTimer() {
     var timer = document.getElementById('timer');
     timeDiff = floor(new Date().getTime() - serverTime);
     if (timeDiff > roundLength * 1000) {
-        prevField = pixelValues;
         gameLobby();
     } else if (timeDiff <= roundLength * 1000) {
         timer.innerHTML = roundLength - floor(timeDiff / 1000);
@@ -420,64 +371,6 @@ function drawTimer() {
     } else {
         rect(padding, 840, floor(timeDiff * width / 10) * 10, 20);
     }
-}
-
-function drawLoginandoutButton() {
-    if (loggedIn == true) {
-        fill('GreenYellow');
-    } else {
-        fill('Tomato');
-    }
-    noStroke();
-    rect(840, 840, 60, 20);
-
-    textSize(12);
-    textAlign(CENTER);
-    if (loggedIn == true) {
-        fill('DimGray');
-        text('logout', 870, 854);
-    } else {
-        fill('White');
-        text('login', 870, 854);
-    }
-}
-
-function drawReadyButton() {
-    if (readyToPlay) {
-        fill('GreenYellow');
-    } else {
-        fill('Tomato');
-    }
-    noStroke();
-    rect(840, 760, 60, 20);
-
-    textSize(12);
-    textAlign(CENTER);
-    if (readyToPlay) {
-        fill('DimGray');
-        text('not ready', 870, 774);
-    } else {
-        fill('White');
-        text('ready', 870, 774);
-    }
-}
-
-function drawActiveUsers() {
-    noStroke();
-    textSize(12);
-    textAlign(CENTER);
-    fill('DimGray');
-    text('Logged in: ' + currentActiveUsers, 870, 100);
-}
-
-function drawWaitingScreen() {
-    noStroke();
-    textSize(24);
-    textAlign(CENTER);
-    fill('DimGray');
-    rect(270, 370, 260, 40);
-    fill('White');
-    text('Start a new round', 400, 400);
 }
 
 function gameLobby() {
@@ -508,20 +401,11 @@ function drawSelector() {
 
 function draw() {
     background(220);
-    // background(255);
-    // if (allPlayersReady) {
     drawGrid(field.width, field.height);
     updateScore(field.width, field.height);
-    drawScore();
-    // text(floor(frameRate()), 100, 100);
+    // drawScore();
     showReticle();
     updateTimer();
     drawTimer();
-    // } else {
-    //     drawWaitingScreen();
-    //     drawReadyButton();
-    // }
-    drawLoginandoutButton();
-    drawActiveUsers();
     drawSelector();
 }
