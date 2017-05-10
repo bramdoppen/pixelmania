@@ -1,9 +1,6 @@
 var database;
-var mySound;
 var canvas;
 var pixelValues = [];
-var prevPixelValues = [];
-var prevField;
 var readyToPlay = false;
 var allPlayersReady = false;
 var fr = 30;
@@ -36,7 +33,6 @@ var buttonKeys;
 
 function preload() {
     fontBold = loadFont('./assets/courbd.ttf');
-    mySound = loadSound('sfx/Input/Input-04a.mp3');
 }
 
 function setup() {
@@ -47,8 +43,6 @@ function setup() {
     localTime = new Date().getTime();
     canvas = createCanvas(1000, 1000);
     canvas.parent('canvasContainer');
-    nosound = ceil(field.width / 20) * ceil(field.height / 20);
-    console.log(nosound);
     console.log('ELVIS HAS ENTERED THE BUILDING');
 
     // Initialize Firebase
@@ -68,8 +62,6 @@ function setup() {
 
     initializePixelValues(field.width, field.height);
     updatePixelValues(field.width, field.height);
-    initializePrevPixelValues(field.width, field.height);
-    updatePrevPixelValues(field.width, field.height);
 
     getButtonFromDB();
     usersLoggedIn();
@@ -217,31 +209,6 @@ function getPixelValue(col, row) {
     ref.on('value', function(snapshot) {
         var colorValue = snapshot.val();
         pixelValues[col][row] = colorValue;
-    }, errData);
-}
-
-function initializePrevPixelValues(width, height) {
-    for (var col = 0; col < width / 20; col++) {
-        prevPixelValues.push([]);
-        for (var row = 0; row < height / 20; row++) {
-            prevPixelValues[col][row] = 255;
-        }
-    }
-}
-
-function updatePrevPixelValues(width, height) {
-    for (var col = 0; col < width / 20; col++) {
-        for (var row = 0; row < height / 20; row++) {
-            getPrevPixelValue(col, row)
-        }
-    }
-}
-
-function getPrevPixelValue(col, row) {
-    var ref = database.ref('prevField/' + col + '/' + row);
-    ref.on('value', function(snapshot) {
-        var colorValue = snapshot.val();
-        prevPixelValues[col][row] = colorValue;
     }, errData);
 }
 
@@ -432,18 +399,10 @@ function updateTimer() {
     timeDiff = floor(new Date().getTime() - serverTime);
     if (timeDiff > roundLength * 1000) {
         prevField = pixelValues;
-        savePrevField();
         gameLobby();
     } else if (timeDiff <= roundLength * 1000) {
         timer.innerHTML = roundLength - floor(timeDiff / 1000);
     }
-}
-
-function savePrevField() {
-    var ref = database.ref('prevField');
-    ref.once('value', function(snapshot) {
-        ref.set(pixelValues);
-    }, errData);
 }
 
 function drawTimer() {
@@ -460,14 +419,6 @@ function drawTimer() {
         rect(padding + random(1, 5), 840 + random(1, 5), floor(timeDiff * width / 10) * 10, 20);
     } else {
         rect(padding, 840, floor(timeDiff * width / 10) * 10, 20);
-    }
-}
-
-function drawPrevField(width, height) {
-    for (var col = 0; col < width / 2; col++) {
-        for (var row = 0; row < height / 2; row++) {
-            drawPixel(col, row, prevPixelValues, 2, 920, 0)
-        }
     }
 }
 
@@ -566,7 +517,6 @@ function draw() {
     showReticle();
     updateTimer();
     drawTimer();
-    drawPrevField(80, 80);
     // } else {
     //     drawWaitingScreen();
     //     drawReadyButton();
