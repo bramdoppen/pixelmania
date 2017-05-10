@@ -3,7 +3,16 @@ var array2 = [['D', 'B', 'C', 'D', 'R', 'F'], ['D', 'B', 'E', 'D', 'D', 'E']];
 var canvasarray = [['D', 'B', 'C', 'D', 'R', 'F'], ['D', 'B', 'E', 'D', 'D', 'E']];
 var currentRound;
 
+var teamImage1 = "tesla";
+var teamImage2 = "firefox";
+
 var imageValues = [];
+
+chooseWinner(
+    updateImageValues(field.width, field.height, teamImage1),
+    updateImageValues(field.width, field.height, teamImage2),
+    pixelValues
+);
 
 // compareImageArrays(updateImageValues(field.width, field.height, "firefox"), pixelValues)
 
