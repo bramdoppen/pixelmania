@@ -1,14 +1,15 @@
 var provider = new firebase.auth.GoogleAuthProvider();
-var username, photo;
-
+var localUserId;
 function loginWithGoogle() {
     firebase.auth().signInWithPopup(provider).then(function(result) {
         // This gives you a Google Access Token. You can use it to access the Google API.
         var token = result.credential.accessToken;
         // The signed-in user info.
         var user = result.user;
+        localUserId = user.uid;
+        console.log('userid ' + localUserId);
         // ...
-        console.log(user.displayName);
+        console.log(user);
         console.log(user.email);
         writeUserData(user.uid, user.displayName, user.email, user.photoURL);
 
@@ -30,9 +31,11 @@ function signOutWithGoogle() {
     firebase.auth().signOut().then(function() {
         // Sign-out successful.
         console.log("signed out")
+        removeUserData(localUserId);
+        localUserId = "";
     }).catch(function(error) {
         // An error happened.
-        console.log("error out")
+        console.log(error)
     });
 }
 
@@ -45,7 +48,14 @@ function writeUserData(uid, name, email, imageUrl) {
     });
 }
 
+function removeUserData(uid) {
+    var loggedInUser = database.ref('users/' + uid);
+    loggedInUser.remove();
+}
 
 window.onload = function() {
     // initApp();
+    
+
+
 };

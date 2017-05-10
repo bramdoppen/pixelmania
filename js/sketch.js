@@ -29,7 +29,7 @@ var showSelector = false;
 var lastClickedX;
 var lastClickedY;
 
-var specialAttack = false;
+var specialAttack = true;
 
 var colorArray = ['DarkTurquoise', 'LightPink', 'GreenYellow', 'Peru', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
 var buttonKeys;
@@ -64,6 +64,7 @@ function setup() {
     database = firebase.database();
 
     getServerTime();
+    getLoggedInUsers();
 
     initializePixelValues(field.width, field.height);
     updatePixelValues(field.width, field.height);
@@ -80,6 +81,32 @@ function getServerTime() {
         serverTime = snapshot.val();
         console.log(serverTime);
     }, errData);
+}
+function getLoggedInUsers() {
+    // var ref = database.ref('users');
+    // ref.on('value', function(snapshot) {
+    //     dbusers = snapshot.val();
+    //     console.log('time' + dbusers);
+    // }, errData);
+    // firebase.database().ref('users/').on('value', function(snapshot) {
+    //     snapshot.forEach(function(userSnapshot) {
+    //         var username = userSnapshot.val();
+    //         console.log('fromdb ' + username.profile_picture);
+    //         // document.getElementById("logged-in-users").innerHTML = '<img src=" ' + username.profile_picture; + ' ">';
+    //         document.getElementById("logged-in-users").innerHTML += "<div class='user'><img src=' "+ username.profile_picture +" '><p class='name'>"+ username.username +"</p></div>";
+    //     });
+    //
+    // });
+    var usersInDb = firebase.database().ref('users/');
+    usersInDb.on('child_added', function(data) {
+        console.log(data.key, data.val().username);
+        document.getElementById("logged-in-users").innerHTML += "<div id='"+data.key+"' class='user'><img src=' "+ data.val().profile_picture +" '><p class='name'>"+ data.val().username +"</p></div>";
+
+    });
+    usersInDb.on('child_removed', function(data) {
+        console.log('removed ' + data.key, data.val().username);
+        document.getElementById(data.key).remove();
+    });
 }
 
 function getButtonFromDB() {
@@ -420,9 +447,9 @@ function savePrevField() {
 }
 
 function drawTimer() {
-    var barWidth = 10 * roundLength;
+    var barWidth = 600;
     var width = barWidth / (roundLength * 1000);
-    var padding = (800 - barWidth) / 2;
+    var padding = 100;
     if (timeDiff > (roundLength - 10) * 1000) {
         fill('Tomato');
     } else {
@@ -527,6 +554,7 @@ function drawSelector() {
     }
 }
 
+
 function draw() {
     background(220);
     // background(255);
@@ -547,3 +575,4 @@ function draw() {
     drawActiveUsers();
     drawSelector();
 }
+
