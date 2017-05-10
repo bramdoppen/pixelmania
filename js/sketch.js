@@ -575,4 +575,3 @@ function draw() {
     drawActiveUsers();
     drawSelector();
 }
-
