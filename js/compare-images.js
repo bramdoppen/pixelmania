@@ -8,11 +8,7 @@ var teamImage2 = "firefox";
 
 var imageValues = [];
 
-chooseWinner(
-    updateImageValues(field.width, field.height, teamImage1),
-    updateImageValues(field.width, field.height, teamImage2),
-    pixelValues
-);
+chooseWinner(updateImageValues(teamImage1), updateImageValues(teamImage2), pixelValues);
 
 // compareImageArrays(updateImageValues(field.width, field.height, "firefox"), pixelValues)
 
