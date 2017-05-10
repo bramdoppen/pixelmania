@@ -1,6 +1,6 @@
-var array1 = [['A', 'B', 'C', 'D', 'D', 'E'], ['A', 'B', 'C', 'D', 'D', 'E']];
-var array2 = [['D', 'B', 'C', 'D', 'R', 'F'], ['D', 'B', 'E', 'D', 'D', 'E']];
-var canvasarray = [['D', 'B', 'C', 'D', 'R', 'F'], ['D', 'B', 'E', 'D', 'D', 'E']];
+// var array1 = [['A', 'B', 'C', 'D', 'D', 'E'], ['A', 'B', 'C', 'D', 'D', 'E']];
+// var array2 = [['D', 'B', 'C', 'D', 'R', 'F'], ['D', 'B', 'E', 'D', 'D', 'E']];
+// var canvasarray = [['D', 'B', 'C', 'D', 'R', 'F'], ['D', 'B', 'E', 'D', 'D', 'E']];
 var currentRound;
 
 var teamImage1 = "tesla";
@@ -80,9 +80,9 @@ function initializeImageValues(width, height) {
     }
 }
 
-function updateImageValues(width, height, image){
-    for (var col = 0; col < width / 20; col++) {
-        for (var row = 0; row < height / 20; row++) {
+function updateImageValues(image) {
+    for (var col = 0; col < field.width / 20; col++) {
+        for (var row = 0; row < field.height / 20; row++) {
             getImageValue(col, row, image);
         }
     }
