@@ -304,11 +304,11 @@ function showReticle() {
     if (showSelector == false) {
         var x = floor(mouseX / 20)*20;
         var y = floor(mouseY / 20)*20;
+        noFill();
+        stroke(255, 100, 0);
+        strokeWeight(1);
 
         if (keyIsDown(ALT) && specialAttack && x < field.width && y < field.height) {
-            noFill();
-            stroke(255, 100, 0);
-            strokeWeight(1);
             rect(x-20, y-20, 60, 60);
             fill(activeColor);
                 if (activeColor == 'White') {
@@ -317,10 +317,7 @@ function showReticle() {
                     noStroke();
                 }
             rect(x + 10, y - 10, 20, 20);
-        } else {
-            noFill();
-            stroke(255, 100, 0);
-            strokeWeight(1);
+        } else if(x < field.width && y < field.height){
             rect(x, y, 20, 20);
             fill(activeColor);
                 if (activeColor == 'White') {
@@ -531,7 +528,7 @@ function drawSelector() {
 }
 
 function draw() {
-    background(238);
+    background(220);
     // background(255);
     // if (allPlayersReady) {
     drawGrid(field.width, field.height);
