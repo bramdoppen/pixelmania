@@ -5,14 +5,13 @@ var fr = 30;
 var localTime;
 var serverTime;
 var timeDiff;
-var roundLength = 600;
 var field = {
     width: 800,
     height: 800
 }
 var teamScore = [0, 0];
 
-var activeColor = 'White';
+var activeColor = 7;
 var activeColorIdentifier;
 
 var showSelector = false;
@@ -21,7 +20,9 @@ var lastClickedY;
 
 var specialAttack = true;
 
-var colorArray = ['DarkTurquoise', 'LightPink', 'GreenYellow', 'Peru', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
+// var colorArray = ['DarkTurquoise', 'LightPink', 'GreenYellow', 'Peru', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
+// var colorArray = ['#026B99', '#028495', '#285E6F', '#603229', '#371D18', '#89756E', '#BBA69C', '#E8D6C1'];
+var colorArray = [ '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE'];
 var buttonKeys;
 
 function preload() {
@@ -41,10 +42,11 @@ function setup() {
     getServerTime();
     getLoggedInUsers();
 
+    getButtonFromDB();
+
     initializePixelValues(field.width, field.height);
     updatePixelValues(field.width, field.height);
-
-    getButtonFromDB();
+    console.log(activeColor);
 }
 
 function getServerTime() {
@@ -84,7 +86,7 @@ function getLoggedInUsers() {
 
 function getButtonFromDB() {
     // var buttonsPad = database.ref('colorButtons');
-    var buttonsPad = database.ref('images/firefox/palette');
+    var buttonsPad = database.ref('images/cat/palette');
     buttonsPad.on("value", gotButtonData, errButton);
 }
 
@@ -99,27 +101,30 @@ function gotButtonData(data) {
     buttonKeys = Object.keys(buttons);
     console.log(buttonKeys);
     for (var i = 0; i < buttonKeys.length; i++) {
-        var k = buttonKeys[i];
-        var colorCode = buttons[k];
+        // var k = buttonKeys[i];
+        // console.log(k);
+        var colorCode = buttons[i];
+        colorArray[i] = colorCode;
         var buttonLi = createElement("li");
         buttonLi.parent("colorButtonListParent");
         var colorTag = colorCode.substr(1);
-        var colorButton = createElement("button", colorTag);
+        var colorButton = createElement("button");
         buttonLi.child(colorButton);
         buttonLi.class('buttonListing');
         colorButton.id(colorTag);
         colorButton.style("background-color", colorCode);
         console.log(i, colorCode, colorTag);
 
-        function makeColorClickHandler(color) {
+        function makeColorClickHandler(color, key) {
             return function() {
-                changeActiveColor(color)
+                console.log(color, key);
+                changeActiveColor(color, key)
             }
         }
 
-        colorButton.mousePressed(makeColorClickHandler(colorCode));
+        colorButton.mousePressed(makeColorClickHandler(colorCode, i));
         if (i == buttonKeys.length - 1) {
-            changeActiveColorSetup(colorCode);
+            changeActiveColorSetup(colorCode, key);
         }
     }
 }
@@ -128,21 +133,25 @@ function errButton() {
     console.log("error retrieving button data!!")
 }
 
-function changeActiveColor(colorCode) {
+function changeActiveColor(colorCode, key) {
+    var colorTag = colorCode.substr(1);
+    console.log(colorCode, colorTag, activeColor, activeColorIdentifier);
     var prevActiveColorButton = document.getElementById(activeColorIdentifier);
-    var activeColorButton = document.getElementById(colorCode);
+    var activeColorButton = document.getElementById(colorTag);
 
     prevActiveColorButton.className = "";
-    activeColor = colorCode;
-    activeColorIdentifier = colorCode;
+    console.log('key: ', key);
+    activeColor = key;
+    activeColorIdentifier = colorTag;
     activeColorButton.className = "activeColor";
 }
 
-function changeActiveColorSetup(colorCode) {
-    var activeColorButton = document.getElementById(colorCode);
+function changeActiveColorSetup(colorCode, key) {
+    var colorTag = colorCode.substr(1);
+    var activeColorButton = document.getElementById(colorTag);
 
-    activeColorIdentifier = buttonKeys[buttonKeys.length - 1];
-    activeColor = colorCode;
+    activeColorIdentifier = colorTag;
+    activeColor = key;
     activeColorButton.className = "activeColor";
 }
 
@@ -150,7 +159,7 @@ function initializePixelValues(width, height) {
     for (var col = 0; col < width / 20; col++) {
         pixelValues.push([]);
         for (var row = 0; row < height / 20; row++) {
-            pixelValues[col][row] = 255;
+            pixelValues[col][row] = 8;
         }
     }
 }
@@ -180,7 +189,9 @@ function drawGrid(width, height) {
 }
 
 function drawPixel(col, row, arr, pixelSize, offsetX, offsetY) {
-    var color = arr[col][row];
+    // var color = arr[col][row];
+    var color = colorArray[arr[col][row]];
+    // console.log(color);
     noStroke();
     fill(color);
     rect(offsetX + col * pixelSize, offsetY + row * pixelSize, pixelSize, pixelSize);
@@ -233,21 +244,14 @@ function showReticle() {
 
         if (keyIsDown(ALT) && specialAttack && x < field.width && y < field.height) {
             rect(x - 20, y - 20, 60, 60);
-            fill(activeColor);
-            if (activeColor == 'White') {
-                stroke(255, 100, 0);
-            } else {
-                noStroke();
-            }
+            fill(colorArray[activeColor]);
+            noStroke();
             rect(x + 10, y - 10, 20, 20);
         } else if (x < field.width && y < field.height) {
             rect(x, y, 20, 20);
-            fill(activeColor);
-            if (activeColor == 'White') {
-                stroke(255, 100, 0);
-            } else {
-                noStroke();
-            }
+            fill(colorArray[activeColor]);
+            // fill('Tomato');
+            noStroke();
             rect(x + 10, y - 10, 20, 20);
         }
     }
@@ -281,6 +285,7 @@ function mousePressed() {
             readyToPlay = false;
         }
     }
+    console.log(floor(mouseX/20), floor(mouseY/20));
     return false;
 }
 
@@ -377,12 +382,15 @@ function drawSelector() {
 
 
 function draw() {
+    if ((activeColor === 0) == false && (activeColor == 0) == true) {
+        activeColor = 7;
+    }
     background(220);
     drawGrid(field.width, field.height);
-    updateScore(field.width, field.height);
     drawScore();
     showReticle();
     updateTimer();
     drawTimer();
     drawSelector();
+    // console.log(activeColor);
 }

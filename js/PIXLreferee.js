@@ -3,7 +3,7 @@ var pixelValues = [];
 var localTime;
 var serverTime;
 var timeDiff;
-var roundLength = 600;
+var roundLength = 30;
 var field = {
     width: 800,
     height: 800
@@ -39,7 +39,7 @@ function initializePixelValues(width, height) {
     for (var col = 0; col < width / 20; col++) {
         pixelValues.push([]);
         for (var row = 0; row < height / 20; row++) {
-            pixelValues[col][row] = 255;
+            pixelValues[col][row] = 8;
         }
     }
 }
@@ -67,7 +67,7 @@ function updateScore(width, height) {
             var color = countColors(col, row);
         }
     }
-    // console.log(teamScore[0], teamScore[1], teamScore[2], teamScore[3]);
+    // console.log(teamScore[0], teamScore[1]);
 }
 
 function countColors(col, row) {
