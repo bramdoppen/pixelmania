@@ -473,7 +473,7 @@ function drawSelector() {
 }
 
 function getEndWinner(){
-    var ref = database.ref('round/' + currentRound + '/roundWinner');
+    var ref = database.ref('round/' + currentRound + '/winner');
     ref.on('value', function(snapshot) {
         winner = snapshot.val();
     }, errData);
@@ -487,16 +487,13 @@ function drawWinner(){
 
    switch (winner) {
         case 1:
-            text('End winner is team number 1!', 400, 400);
-            console.log("End winner is team number 1!");
+            text('End winner is team number 1!', 120, 400);
             break;
         case 2:
-            text('End winner is team number 2!', 400, 400);
-            console.log("End winner is team number 2!");
+            text('End winner is team number 2!', 120, 400);
             break;
         case 3:
-            text('Round draw...', 400, 400);
-            console.log("Round draw...");
+            text('Round draw...', 120, 400);
             break;
         default:
             break;
@@ -516,4 +513,5 @@ function draw() {
     drawSelector();
     // console.log(activeColor);
     drawWinner();
+    getEndWinner();
 }
