@@ -23,7 +23,7 @@ var fr = 30;
 var localTime;
 var serverTime;
 var timeDiff;
-var roundLength = 100;
+var roundLength = 30;
 var field = {
     width: 800,
     height: 800
