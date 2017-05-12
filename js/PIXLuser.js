@@ -29,6 +29,7 @@ var field = {
     height: 800
 }
 var teamScore = [0, 0];
+var team = 1;
 
 var activeColor = 7;
 var activeColorIdentifier;
@@ -43,7 +44,7 @@ var specialAttack = true;
 // var colorArray = ['#026B99', '#028495', '#285E6F', '#603229', '#371D18', '#89756E', '#BBA69C', '#E8D6C1'];
 var colorArray = [ '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE'];
 var buttonKeys;
-
+var winner;
 
 function preload() {
     fontBold = loadFont('./assets/courbd.ttf');
@@ -112,7 +113,11 @@ function getLoggedInUsers() {
 
 function getButtonFromDB() {
     // var buttonsPad = database.ref('colorButtons');
-    var buttonsPad = database.ref('images/cat/palette');
+    if (team == 1) {
+        var buttonsPad = database.ref('images/cat/palette');
+    } else if (team == 2) {
+        var buttonsPad = database.ref('images/firefox/palette');
+    }
     buttonsPad.on("value", gotButtonData, errButton);
 }
 

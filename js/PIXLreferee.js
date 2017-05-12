@@ -138,7 +138,7 @@ function gameLobby() {
 
 
 function draw() {
-    // updateScore(teamOne.score, 'teamOne');
-    // updateScore(teamTwo.score, 'teamTwo');
+    updateScore(teamOne.score, 'teamOne');
+    updateScore(teamTwo.score, 'teamTwo');
     updateTimer();
 }
