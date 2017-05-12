@@ -1,4 +1,22 @@
 var database;
+
+database = firebase.database();
+var gathering = new Gathering(database, 'Pixelmania Room');
+
+function gatheringLiveUpdates() {
+    // Attach a callback function to track updates
+    // That function will be called (with the user count and array of users) every time user list updated
+    gathering.onUpdated(function(count, users) {
+        console.log(gathering.roomName + ' have '+ count +' members.');
+        console.log('Here is the updated users list -');
+        for(var i in users) {
+            console.log(users[i] + '(id: '+ i + ')');
+        }
+    });
+
+}
+
+
 var canvas;
 var pixelValues = [];
 var fr = 30;
@@ -26,6 +44,7 @@ var specialAttack = true;
 var colorArray = [ '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE'];
 var buttonKeys;
 
+
 function preload() {
     fontBold = loadFont('./assets/courbd.ttf');
 }
@@ -38,7 +57,7 @@ function setup() {
     canvas = createCanvas(1000, 1000);
     canvas.parent('canvasContainer');
 
-    database = firebase.database();
+
 
     getServerTime();
     getLoggedInUsers();
@@ -48,6 +67,12 @@ function setup() {
     initializePixelValues(field.width, field.height);
     updatePixelValues(field.width, field.height);
     console.log(activeColor);
+
+    getButtonFromDB();
+    gatheringLiveUpdates();
+
+    // throw login screen to user
+    showLoginPopup();
 }
 
 function getServerTime() {

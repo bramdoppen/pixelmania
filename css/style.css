@@ -2,7 +2,6 @@
     /*padding-left: 40px;
     padding-top: 40px;*/
 }
-
 body {
     padding: 0; margin: 0;
     background-color: #cdcdcd;
@@ -81,4 +80,54 @@ body {
     font-family: helvetica;
     font-size: 12px;
     margin-left: 9px;
+}
+
+#mainOverlay {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.54);
+}
+.innerContent {
+    content: "";
+    width: 98vw;
+    height: 98vh;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    background: white;
+    color:white;
+    border-radius: 15px;
+    padding: 50px;
+    box-sizing: border-box;
+    background-image:url('/assets/image/battle-win.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+h1 {
+    font-family: 'Montserrat', sans-serif;
+}
+.innerContent h1 {
+    font-size: 50px;
+}
+.buttonWrapper button {
+    background: #7676e8;
+    border: 0;
+    font-family: Jaldi;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 14px;
 }

@@ -1,5 +1,6 @@
 var provider = new firebase.auth.GoogleAuthProvider();
 var localUserId;
+
 function loginWithGoogle() {
     firebase.auth().signInWithPopup(provider).then(function(result) {
         // This gives you a Google Access Token. You can use it to access the Google API.
@@ -7,34 +8,30 @@ function loginWithGoogle() {
         // The signed-in user info.
         var user = result.user;
         localUserId = user.uid;
-        console.log('userid ' + localUserId);
-        // ...
-        console.log(user);
-        console.log(user.email);
+
+        // remove the login popup when login is succesful
+        removeLoginPopup();
+
+        // add user to the gathering
+        gathering.join(firebase.auth().localUserId, user.displayName);
+
+        // write user data to the database
         writeUserData(user.uid, user.displayName, user.email, user.photoURL);
 
 
     }).catch(function(error) {
         // Handle Errors here.
-        var errorCode = error.code;
         var errorMessage = error.message;
-        // The email of the user's account used.
-        var email = error.email;
-        // The firebase.auth.AuthCredential type that was used.
-        var credential = error.credential;
-        // ...
-        console.log(errorCode + errorMessage + email + credential);
+        console.log(errorMessage);
     });
 }
 
 function signOutWithGoogle() {
     firebase.auth().signOut().then(function() {
         // Sign-out successful.
-        console.log("signed out")
         removeUserData(localUserId);
         localUserId = "";
     }).catch(function(error) {
-        // An error happened.
         console.log(error)
     });
 }
@@ -53,9 +50,26 @@ function removeUserData(uid) {
     loggedInUser.remove();
 }
 
-window.onload = function() {
-    // initApp();
-    
+function getLoggedInUsers() {
+    var usersInDb = firebase.database().ref('users/');
+    usersInDb.on('child_added', function(data) {
+        console.log(data.key, data.val().username);
+        document.getElementById("logged-in-users").innerHTML += "<div id='"+data.key+"' class='user'><img src=' "+ data.val().profile_picture +" '><p class='name'>"+ data.val().username +"</p></div>";
 
+    });
+    usersInDb.on('child_removed', function(data) {
+        console.log('removed ' + data.key, data.val().username);
+        document.getElementById(data.key).remove();
+    });
+}
 
-};
+function showLoginPopup() {
+    document.getElementById("mainOverlay").innerHTML = '<div class="innerContent"><h1>Klaar om te winnen?</h1><div class="buttonWrapper"><button onclick = "loginWithGoogle()">Inloggen met Google</button></div></div>';
+    document.getElementById("mainOverlay").style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function removeLoginPopup() {
+    document.getElementById("mainOverlay").style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
