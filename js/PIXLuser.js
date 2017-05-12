@@ -30,6 +30,18 @@ var field = {
 }
 var teamScore = [0, 0];
 var team = 1;
+var teamOne = {
+    score: 0,
+    img: '',
+    imgName: 'cat',
+    imgPixels: []
+}
+var teamTwo = {
+    score: 0,
+    img: '',
+    imgName: 'firefox',
+    imgPixels: []
+}
 
 var activeColor = 7;
 var activeColorIdentifier;
@@ -48,6 +60,8 @@ var winner;
 
 function preload() {
     fontBold = loadFont('./assets/courbd.ttf');
+    teamOne.img = loadImage('/assets/cat8c.jpg');
+    teamTwo.img = loadImage('/assets/firefox8c.jpg');
 }
 
 function setup() {
@@ -55,7 +69,7 @@ function setup() {
     frameRate(fr);
     textFont('Courier New');
     localTime = new Date().getTime();
-    canvas = createCanvas(1000, 1000);
+    canvas = createCanvas(1200, 1000);
     canvas.parent('canvasContainer');
 
 
@@ -65,15 +79,20 @@ function setup() {
 
     getButtonFromDB();
 
-    initializePixelValues(field.width, field.height);
-    updatePixelValues(field.width, field.height);
+    pixelValues = initializePixelValues(field.width, field.height);
+    teamOne.imgPixels = initializePixelValues(field.width, field.height);
+    teamTwo.imgPixels = initializePixelValues(field.width, field.height);
+    // updatePixelValues(field.width, field.height, 'round/' + currentRound + '/pixels/', pixelValues);
+    updatePixelValues(field.width, field.height, 'pixels/', pixelValues);
+    updatePixelValues(field.width, field.height, 'images/cat/', teamOne.imgPixels);
+    updatePixelValues(field.width, field.height, 'images/firefox/', teamTwo.imgPixels);
     console.log(activeColor);
 
     getButtonFromDB();
     gatheringLiveUpdates();
 
     // throw login screen to user
-    showLoginPopup();
+    // showLoginPopup();
 }
 
 function getServerTime() {
@@ -187,27 +206,29 @@ function changeActiveColorSetup(colorCode, key) {
 }
 
 function initializePixelValues(width, height) {
+    var arr = [];
     for (var col = 0; col < width / 20; col++) {
-        pixelValues.push([]);
+        arr.push([]);
         for (var row = 0; row < height / 20; row++) {
-            pixelValues[col][row] = 8;
+            arr[col][row] = 8;
+        }
+    }
+    return arr;
+}
+
+function updatePixelValues(width, height, destination, arr) {
+    for (var col = 0; col < width / 20; col++) {
+        for (var row = 0; row < height / 20; row++) {
+            getPixelValue(col, row, destination, arr);
         }
     }
 }
 
-function updatePixelValues(width, height) {
-    for (var col = 0; col < width / 20; col++) {
-        for (var row = 0; row < height / 20; row++) {
-            getPixelValue(col, row);
-        }
-    }
-}
-
-function getPixelValue(col, row) {
-    var ref = database.ref('pixels/' + col + '/' + row + '/color');
+function getPixelValue(col, row, destination, arr) {
+    var ref = database.ref(destination + col + '/' + row + '/color');
     ref.on('value', function(snapshot) {
         var colorValue = snapshot.val();
-        pixelValues[col][row] = colorValue;
+        arr[col][row] = colorValue;
     }, errData);
 }
 
@@ -435,6 +456,7 @@ function draw() {
         activeColor = 7;
     }
     background(220);
+    image(teamOne.img, 800, 0, 400, 400);
     drawGrid(field.width, field.height);
     drawScore();
     showReticle();
