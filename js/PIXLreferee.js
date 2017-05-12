@@ -136,7 +136,19 @@ function increaseRoundNumber() {
     ref.set(currentRound);
 }
 
+function setRoundWinner(){
+    var ref = database.ref('round/' + currentRound + '/winner');
+    if(teamOne.score > teamTwo.score){
+        ref.set('1');
+    } else if (teamOne.score < teamTwo.score){
+        ref.set('2');
+    } else{
+        ref.set('3');
+    }
+}
+
 function gameLobby() {
+    setRoundWinner();
     increaseRoundNumber();
     initTimerDB();
     initPixelsDB();
