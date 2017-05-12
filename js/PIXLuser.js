@@ -394,6 +394,36 @@ function drawSelector() {
     }
 }
 
+function getEndWinner(){
+    var ref = database.ref('round/' + currentRound + '/roundWinner');
+    ref.on('value', function(snapshot) {
+        winner = snapshot.val();
+    }, errData);
+}
+
+function drawWinner(){
+    fill('DimGray');
+    textAlign('CENTER');
+    textStyle(BOLD);
+    textSize(32);
+
+   switch (winner) {
+        case 1:
+            text('End winner is team number 1!', 400, 400);
+            console.log("End winner is team number 1!");
+            break;
+        case 2:
+            text('End winner is team number 2!', 400, 400);
+            console.log("End winner is team number 2!");
+            break;
+        case 3:
+            text('Round draw...', 400, 400);
+            console.log("Round draw...");
+            break;
+        default:
+            break;
+    }
+}
 
 function draw() {
     if ((activeColor === 0) == false && (activeColor == 0) == true) {
@@ -406,4 +436,5 @@ function draw() {
     drawTimer();
     drawSelector();
     // console.log(activeColor);
+    drawWinner();
 }
