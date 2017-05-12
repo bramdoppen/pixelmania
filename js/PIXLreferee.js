@@ -87,7 +87,7 @@ function getPixelValue(col, row, destination, arr) {
     }, errData);
 }
 
-function updateScore(width, height) {
+function getScore(width, height) {
     teamOne.score = 0; teamTwo.score = 0;
     for (var col = 0; col < width / 20; col++) {
         for (var row = 0; row < height / 20; row++) {
@@ -95,7 +95,7 @@ function updateScore(width, height) {
             teamTwo.score += countMatchingColors(col, row, teamTwo);
         }
     }
-    // console.log(teamOne.score + ' / 1600', teamTwo.score + ' / 1600');
+    console.log(teamOne.score + ' / 1600', teamTwo.score + ' / 1600');
 }
 
 function countMatchingColors(col, row, team) {
@@ -130,14 +130,21 @@ function updateTimer() {
     }
 }
 
+function increaseRoundNumber() {
+    var ref = database.ref('currentRound');
+    currentRound++;
+    ref.set(currentRound);
+}
+
 function gameLobby() {
+    increaseRoundNumber();
     initTimerDB();
     initPixelsDB();
-
 }
 
 
 function draw() {
+    getScore(field.width, field.height);
     updateScore(teamOne.score, 'teamOne');
     updateScore(teamTwo.score, 'teamTwo');
     updateTimer();

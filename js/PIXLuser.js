@@ -1,23 +1,9 @@
 var database;
-
 database = firebase.database();
 var gathering = new Gathering(database, 'Pixelmania Room');
 
-function gatheringLiveUpdates() {
-    // Attach a callback function to track updates
-    // That function will be called (with the user count and array of users) every time user list updated
-    gathering.onUpdated(function(count, users) {
-        console.log(gathering.roomName + ' have '+ count +' members.');
-        console.log('Here is the updated users list -');
-        for(var i in users) {
-            console.log(users[i] + '(id: '+ i + ')');
-        }
-    });
-
-}
-
-
 var canvas;
+var currentRound;
 var pixelValues = [];
 var fr = 30;
 var localTime;
@@ -72,8 +58,9 @@ function setup() {
     canvas = createCanvas(1200, 1000);
     canvas.parent('canvasContainer');
 
-
-
+    getRoundNumber();
+    getScore(teamOne, 'teamOne');
+    getScore(teamTwo, 'teamTwo');
     getServerTime();
     getLoggedInUsers();
 
@@ -95,12 +82,38 @@ function setup() {
     // showLoginPopup();
 }
 
+function getRoundNumber() {
+    var ref = database.ref('currentRound');
+    ref.on('value', function(snapshot) {
+        currentRound = snapshot.val();
+    }, errData);
+}
+
+function getScore(team, name) {
+    var ref = database.ref('round/' + currentRound + '/' + name);
+    ref.on('value', function(snapshot) {
+        team.score = snapshot.val();
+    }, errData);
+}
+
 function getServerTime() {
     var ref = database.ref('time');
     ref.on('value', function(snapshot) {
         serverTime = snapshot.val();
         console.log(serverTime);
     }, errData);
+}
+
+function gatheringLiveUpdates() {
+    // Attach a callback function to track updates
+    // That function will be called (with the user count and array of users) every time user list updated
+    gathering.onUpdated(function(count, users) {
+        console.log(gathering.roomName + ' has '+ count +' member(s).');
+        console.log('Here is the updated users list -');
+        for(var i in users) {
+            console.log(users[i] + '(id: '+ i + ')');
+        }
+    });
 }
 
 function getLoggedInUsers() {
@@ -250,12 +263,12 @@ function drawPixel(col, row, arr, pixelSize, offsetX, offsetY) {
 }
 
 function drawScore() {
-    var total = teamScore[0] + teamScore[1];
+    var total = teamOne.score + teamTwo.score;
     var ratio = 720 / total;
     fill('DarkTurquoise');
-    rect(840, 40, 20, teamScore[0] * ratio);
-    fill('GreenYellow');
-    rect(840, 40 + teamScore[0] * ratio, 20, teamScore[1] * ratio);
+    rect(840, 40, 20, teamOne.score * ratio);
+    fill('Tomato');
+    rect(840, 40 + teamOne.score * ratio, 20, teamTwo.score * ratio);
     drawTeam(ratio, 880);
     showCurrentLeader(ratio);
 }
@@ -265,17 +278,17 @@ function drawTeam(ratio, y) {
     textAlign('center');
     textStyle(BOLD);
     textSize(16);
-    text(teamScore[0], y, 40 + teamScore[0] / 2 * ratio);
-    text(teamScore[1], y, 40 + (teamScore[0] + teamScore[1] / 2) * ratio);
+    text(teamOne.score, y, 40 + teamOne.score / 2 * ratio);
+    text(teamTwo.score, y, 40 + (teamOne.score + teamTwo.score / 2) * ratio);
 }
 
 function showCurrentLeader(ratio) {
-    if (teamScore[0] > teamScore[1]) {
+    if (teamOne.score > teamTwo.score) {
         fill('DarkTurquoise');
-        rect(840 - 8, 40, 3, teamScore[0] * ratio);
-    } else if (teamScore[1] > teamScore[0]) {
+        rect(840 - 8, 40, 3, teamOne.score * ratio);
+    } else if (teamTwo.score > teamOne.score) {
         fill('GreenYellow');
-        rect(840 - 8, 40 + teamScore[0] * ratio, 3, teamScore[1] * ratio);
+        rect(840 - 8, 40 + teamOne.score * ratio, 3, teamTwo.score * ratio);
     } else {
         fill('DimGray');
         textAlign('LEFT');
@@ -456,9 +469,9 @@ function draw() {
         activeColor = 7;
     }
     background(220);
-    image(teamOne.img, 800, 0, 400, 400);
+    // image(teamOne.img, 800, 0, 400, 400);
     drawGrid(field.width, field.height);
-    drawScore();
+    // drawScore();
     showReticle();
     drawTimer();
     drawSelector();
