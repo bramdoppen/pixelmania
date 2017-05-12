@@ -205,6 +205,45 @@ function changeActiveColorSetup(colorCode, key) {
     activeColorButton.className = "activeColor";
 }
 
+function keyTyped(){
+    if (key === '1') {
+        activeColor = 0;
+        changeActiveColorCss(1);
+    } else if (key === '2'){
+        activeColor = 1;
+        changeActiveColorCss(2);
+    } else if (key === '3'){
+        activeColor = 2;
+        changeActiveColorCss(3);
+    } else if (key === '4'){
+        activeColor = 3;
+        changeActiveColorCss(4);
+    } else if (key === '5'){
+        activeColor = 4;
+        changeActiveColorCss(5);
+    } else if (key === '6'){
+        activeColor = 5;
+        changeActiveColorCss(6);
+    } else if (key === '7'){
+        activeColor = 6;
+        changeActiveColorCss(7);
+    } else if (key === '8'){
+        activeColor = 7;
+        changeActiveColorCss(8);
+    }
+}
+
+function changeActiveColorCss(number){
+    var mainDiv = document.getElementById('colorSelection');
+    var x = mainDiv.children[0].children[number-1].children[0];
+
+    for (var i = 0; i < 8; i++) {
+         mainDiv.children[0].children[i].children[0].className = "";
+    }
+
+    x.className = "activeColor";
+}
+
 function initializePixelValues(width, height) {
     var arr = [];
     for (var col = 0; col < width / 20; col++) {
