@@ -329,17 +329,10 @@ function errData(err) {
     console.log(err);
 }
 
-function updateTimer() {
+function drawTimer() {
     var timer = document.getElementById('timer');
     timeDiff = floor(new Date().getTime() - serverTime);
-    if (timeDiff > roundLength * 1000) {
-        gameLobby();
-    } else if (timeDiff <= roundLength * 1000) {
-        timer.innerHTML = roundLength - floor(timeDiff / 1000);
-    }
-}
-
-function drawTimer() {
+    timer.innerHTML = roundLength - floor(timeDiff / 1000);
     var barWidth = 600;
     var width = barWidth / (roundLength * 1000);
     var padding = 100;
@@ -354,11 +347,6 @@ function drawTimer() {
     } else {
         rect(padding, 840, floor(timeDiff * width / 10) * 10, 20);
     }
-}
-
-function gameLobby() {
-    initTimerDB();
-    initPixelsDB();
 }
 
 function drawSelector() {
@@ -390,7 +378,6 @@ function draw() {
     drawGrid(field.width, field.height);
     drawScore();
     showReticle();
-    // updateTimer();
     drawTimer();
     drawSelector();
     // console.log(activeColor);
