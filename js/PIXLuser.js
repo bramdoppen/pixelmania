@@ -5,6 +5,7 @@ var fr = 30;
 var localTime;
 var serverTime;
 var timeDiff;
+var roundLength = 100;
 var field = {
     width: 800,
     height: 800
@@ -389,7 +390,7 @@ function draw() {
     drawGrid(field.width, field.height);
     drawScore();
     showReticle();
-    updateTimer();
+    // updateTimer();
     drawTimer();
     drawSelector();
     // console.log(activeColor);

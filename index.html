@@ -20,14 +20,22 @@
     <script language="javascript" type="text/javascript" src="js/PIXLreferee.js"></script>
     <script language="javascript" type="text/javascript" src="js/PIXLuser.js"></script>
     <script language="javascript" type="text/javascript" src="js/PIXLlogin.js"></script>
-    <script language="javascript" type="text/javascript" src="js/compare-images.js"></script>
+    <!-- <script language="javascript" type="text/javascript" src="js/compare-images.js"></script> -->
 
     <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script>
+        // document.getElementById('referee').onclick = "location.href = 'http://google.com'";
+        // document.getElementById('user').onclick = "location.href = 'user.html'";
+    </script>
 </head>
 
-<body oncontextmenu="return false">
+<body oncontextmenu="return true">
 <button onclick = "loginWithGoogle()">Google Signin</button>
 <button onclick = "signOutWithGoogle()">Google Signout</button>
+<!-- <button id="referee">Referee</button>
+<button id="user">User</button> -->
+<input type="button" onclick="location.href='referee.html';" value="Referee" />
+<input type="button" onclick="location.href='user.html';" value="User" />
 <div id="logged-in-users"></div>
 <p id="login_username"></p>
     <div id="canvasContainer"></div>

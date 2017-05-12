@@ -1,6 +1,6 @@
 var currentRound = 1;
 
-var teamImage1 = "tesla";
+var teamImage1 = "cat";
 var teamImage2 = "firefox";
 
 var imageValues = [];
@@ -24,6 +24,8 @@ function compareImageArrays(array1, array2) {
             if (array1[i][j] == array2[i][j]) {
                 points++;
             }
+            console.log(array1[i][j], i, j, points);
+            console.log(array2[i][j], i, j, points);
         }
     }
 
@@ -34,7 +36,7 @@ function compareImageArrays(array1, array2) {
 }
 
 function printScoreOfTotal(points, arrayTotalCount) {
-    console.log(points, " / ", arrayTotalCount);
+    console.log(points + ' / ' + arrayTotalCount);
 }
 
 function setRoundWinner(winnerTeam) {
@@ -48,6 +50,7 @@ function chooseWinner(pictureArrayTeam1, pictureArrayTeam2, canvasArray) {
     var winner;
     var team1 = compareImageArrays(canvasArray, pictureArrayTeam1);
     var team2 = compareImageArrays(canvasArray, pictureArrayTeam2);
+    console.log(canvasArray, pictureArrayTeam1, pictureArrayTeam2);
 
     if (team1 > team2) {
         winner = 1;
@@ -71,7 +74,7 @@ function initializeImageValues(width, height) {
     for (var col = 0; col < width / 20; col++) {
         imageValues.push([]);
         for (var row = 0; row < height / 20; row++) {
-            imageValues[col][row] = 255;
+            imageValues[col][row] = 8;
         }
     }
 }
