@@ -1,4 +1,5 @@
 var database;
+var currentRound;
 var pixelValues = [];
 var localTime;
 var serverTime;
@@ -30,17 +31,26 @@ function setup() {
 
     database = firebase.database();
 
+    getRoundNumber();
     getServerTime();
 
     pixelValues = initializePixelValues(field.width, field.height);
     teamOne.imgPixels = initializePixelValues(field.width, field.height);
     teamTwo.imgPixels = initializePixelValues(field.width, field.height);
+    // updatePixelValues(field.width, field.height, 'round/' + currentRound + '/pixels/', pixelValues);
     updatePixelValues(field.width, field.height, 'pixels/', pixelValues);
     updatePixelValues(field.width, field.height, 'images/cat/', teamOne.imgPixels);
     updatePixelValues(field.width, field.height, 'images/firefox/', teamTwo.imgPixels);
 }
 
 console.log(pixelValues);
+
+function getRoundNumber() {
+    var ref = database.ref('currentRound');
+    ref.on('value', function(snapshot) {
+        currentRound = snapshot.val();
+    }, errData);
+}
 
 function getServerTime() {
     var ref = database.ref('time');
@@ -49,31 +59,6 @@ function getServerTime() {
         console.log(serverTime);
     }, errData);
 }
-
-// function initializePixelValues(width, height) {
-//     for (var col = 0; col < width / 20; col++) {
-//         pixelValues.push([]);
-//         for (var row = 0; row < height / 20; row++) {
-//             pixelValues[col][row] = 8;
-//         }
-//     }
-// }
-
-// function updatePixelValues(width, height) {
-//     for (var col = 0; col < width / 20; col++) {
-//         for (var row = 0; row < height / 20; row++) {
-//             getPixelValue(col, row);
-//         }
-//     }
-// }
-//
-// function getPixelValue(col, row) {
-//     var ref = database.ref('pixels/' + col + '/' + row + '/color');
-//     ref.on('value', function(snapshot) {
-//         var colorValue = snapshot.val();
-//         pixelValues[col][row] = colorValue;
-//     }, errData);
-// }
 
 function initializePixelValues(width, height) {
     var arr = [];
@@ -123,10 +108,11 @@ function countMatchingColors(col, row, team) {
     } else {
         return 0;
     }
-    // switch (pixelValues[col][row]) {
-    //     case 'DarkTurquoise': teamScore[0]++; break;
-    //     case 'GreenYellow': teamScore[1]++; break;
-    // }
+}
+
+function updateScore(score, team) {
+    var ref = database.ref('round/' + currentRound + '/score/' + team);
+    ref.set(score);
 }
 
 function errData(err) {
@@ -144,15 +130,15 @@ function updateTimer() {
     }
 }
 
-
-
 function gameLobby() {
     initTimerDB();
     initPixelsDB();
+
 }
 
 
 function draw() {
-    updateScore(field.width, field.height);
+    // updateScore(teamOne.score, 'teamOne');
+    // updateScore(teamTwo.score, 'teamTwo');
     updateTimer();
 }
