@@ -41,6 +41,8 @@ function setup() {
     updatePixelValues(field.width, field.height, 'pixels/', pixelValues);
     updatePixelValues(field.width, field.height, 'images/cat/', teamOne.imgPixels);
     updatePixelValues(field.width, field.height, 'images/firefox/', teamTwo.imgPixels);
+
+    requestHandler();
 }
 
 console.log(pixelValues);
@@ -154,6 +156,59 @@ function gameLobby() {
     initPixelsDB();
 }
 
+function requestHandler() {
+    var ref = database.ref('requests/pixelChange');
+    var validRequest = 0;
+    ref.on('child_added', function(data) {
+        var request = data.val();
+        console.log('request added');
+        console.log('all', request);
+        console.log('x', request.x);
+        console.log('y', request.y);
+        console.log('color', request.color);
+        console.log('sAttack', request.sAttack);
+        validRequest += checkForLegalRequest(request.x, 0, 39);
+        validRequest += checkForLegalRequest(request.y, 0, 39);
+        validRequest += checkForLegalRequest(request.color, 0, 7);
+        validRequest += checkForLegalRequest(request.sAttack, 0, 1);
+        validRequest += checkIfValidUser(request.user);
+        console.log('validRequest', validRequest);
+        if (validRequest === 0) {
+            var ref = database.ref('pixels/' + request.x + '/' + request.y + '/color');
+            ref.once('value', function(snapshot) {
+                ref.set(request.color);
+            }, errData);
+        } else {
+            console.log('invalid request by:', request.user);
+        }
+        // ref.remove();
+        console.log('request handled and deleted');
+    }, errData);
+}
+
+function checkForLegalRequest(request, lowerLimit, upperLimit) {
+    if (request >= lowerLimit && request <= upperLimit && typeof request === 'number' && (request % 1) === 0) {
+        console.log('legal request');
+        return 0;
+    } else {
+        console.log('illegal request');
+        return 1;
+    }
+}
+
+function checkIfValidUser(user) {
+    var ref = database.ref('users/' + user);
+    ref.once('value', function(snapshot) {
+        console.log(user);
+        var validUser = snapshot.val() != null;
+        console.log('valid user:', validUser);
+        if (validUser) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }, errData);
+}
 
 function draw() {
     getScore(field.width, field.height);

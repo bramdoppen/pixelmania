@@ -79,7 +79,7 @@ function setup() {
     gatheringLiveUpdates();
 
     // throw login screen to user
-    // showLoginPopup();
+    showLoginPopup();
 }
 
 function getRoundNumber() {
@@ -367,7 +367,8 @@ function mousePressed() {
         lastClickedY = mouseY;
     }
     if (mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height) {
-        changeColor();
+        // changeColor();
+        changeColorNew();
     }
     if (mouseX > 840 && mouseX < 900 && mouseY > 840 && mouseY < 860) {
         if (loggedIn == false) {
@@ -389,7 +390,7 @@ function mousePressed() {
             readyToPlay = false;
         }
     }
-    console.log(floor(mouseX/20), floor(mouseY/20));
+    // console.log(floor(mouseX/20), floor(mouseY/20));
     return false;
 }
 
@@ -405,21 +406,57 @@ function mouseReleased() {
     }
 }
 
-function changeColor() {
+// function changeColor() {
+//     if (mouseX < 800 && mouseY < 800) {
+//         var x = floor(mouseX / 20);
+//         var y = floor(mouseY / 20);
+//         var ref = database.ref('pixels/' + x + '/' + y + '/color');
+//         ref.once('value', function(snapshot) {
+//             ref.set(activeColor);
+//         }, errData);
+//
+//         if (keyIsDown(ALT) && specialAttack) {
+//             for (var i = 0; i < 3; i++) {
+//                 for (var j = 0; j < 3; j++) {
+//                     var ref = database.ref('pixels/' + (x - 1 + j) + '/' + (y - 1 + i) + '/color');
+//                     ref.once('value', function(snapshot) {
+//                         ref.set(activeColor);
+//                     }, errData);
+//                 }
+//             }
+//         }
+//     }
+// }
+
+function changeColorNew() {
     if (mouseX < 800 && mouseY < 800) {
         var x = floor(mouseX / 20);
         var y = floor(mouseY / 20);
-        var ref = database.ref('pixels/' + x + '/' + y + '/color');
+        var ref = database.ref('requests/pixelChange/' + new Date().getTime());
         ref.once('value', function(snapshot) {
-            ref.set(activeColor);
+            data = {
+                x: x,
+                y: y,
+                color: activeColor,
+                sAttack: 0,
+                user: localUserId
+            }
+            ref.set(data);
         }, errData);
 
         if (keyIsDown(ALT) && specialAttack) {
             for (var i = 0; i < 3; i++) {
                 for (var j = 0; j < 3; j++) {
-                    var ref = database.ref('pixels/' + (x - 1 + j) + '/' + (y - 1 + i) + '/color');
+                    var ref = database.ref('requests/pixelChange/' + new Date().getTime());
                     ref.once('value', function(snapshot) {
-                        ref.set(activeColor);
+                        data = {
+                            x: x - 1 + j,
+                            y: y - 1 + i,
+                            color: activeColor,
+                            sAttack: 1,
+                            user: localUserId
+                        }
+                        ref.set(data);
                     }, errData);
                 }
             }
