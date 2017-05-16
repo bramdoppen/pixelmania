@@ -15,7 +15,7 @@ var field = {
     height: 800
 }
 var teamScore = [0, 0];
-var team = 1;
+var team = 2;
 var teamOne = {
     score: 0,
     img: '',
@@ -59,8 +59,8 @@ function setup() {
     canvas.parent('canvasContainer');
 
     getRoundNumber();
-    getScore(teamOne, 'teamOne');
-    getScore(teamTwo, 'teamTwo');
+    getScore('teamOne');
+    getScore('teamTwo');
     getServerTime();
     getLoggedInUsers();
 
@@ -89,10 +89,15 @@ function getRoundNumber() {
     }, errData);
 }
 
-function getScore(team, name) {
-    var ref = database.ref('round/' + currentRound + '/' + name);
+function getScore(team) {
+    var ref = database.ref('round/' + currentRound + '/' + team);
     ref.on('value', function(snapshot) {
-        team.score = snapshot.val();
+        console.log('score', snapshot.val());
+        if (team == 'teamOne') {
+            teamOne.score = snapshot.val();
+        } else if (team == 'teamTwo') {
+            teamTwo.score = snapshot.val();
+        }
     }, errData);
 }
 
@@ -350,7 +355,7 @@ function showReticle() {
         stroke(255, 100, 0);
         strokeWeight(1);
 
-        if (keyIsDown(ALT) && specialAttack > 0 && x < field.width && y < field.height) {
+        if (keyIsDown(CONTROL) && specialAttack > 0 && x < field.width && y < field.height) {
             rect(x - 20, y - 20, 60, 60);
             fill(colorArray[activeColor]);
             noStroke();
@@ -382,7 +387,7 @@ function drawMinimap() {
     vertex(1000, 0);
     vertex(1000, 200);
     vertex(800, 200);
-    if (keyIsDown(ALT) && specialAttack > 0 && x < field.width - 20 && x > 0 && y < field.height - 20 && y > 0) {
+    if (keyIsDown(CONTROL) && specialAttack > 0 && x < field.width - 20 && x > 0 && y < field.height - 20 && y > 0) {
         // Interior part of shape, counter-clockwise winding
         beginContour();
         vertex(800 + x / scale - 5, y / scale - 5);
@@ -459,7 +464,7 @@ function mouseReleased() {
 //             ref.set(activeColor);
 //         }, errData);
 //
-//         if (keyIsDown(ALT) && specialAttack) {
+//         if (keyIsDown(CONTROL) && specialAttack) {
 //             for (var i = 0; i < 3; i++) {
 //                 for (var j = 0; j < 3; j++) {
 //                     var ref = database.ref('pixels/' + (x - 1 + j) + '/' + (y - 1 + i) + '/color');
@@ -485,7 +490,7 @@ function changeColorNew() {
                 sAttack: 0,
                 user: localUserId
             }
-            if (keyIsDown(ALT) && specialAttack > 0) {
+            if (keyIsDown(CONTROL) && specialAttack > 0) {
                 data.sAttack = 1;
                 specialAttack--;
             }
@@ -572,7 +577,11 @@ function draw() {
         activeColor = 7;
     }
     background(220);
-    image(teamOne.img, 800, 0, 200, 200);
+    if (team == 1) {
+        image(teamOne.img, 800, 0, 200, 200);
+    } else if (team == 2) {
+        image(teamTwo.img, 800, 0, 200, 200);
+    }
     drawGrid(field.width, field.height);
     // drawScore();
     showReticle();

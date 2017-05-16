@@ -19,6 +19,7 @@ var teamTwo = {
     img: 'firefox',
     imgPixels: []
 }
+var winnerAlreadySet = false;
 
 function preload() {
     fontBold = loadFont('./assets/courbd.ttf');
@@ -150,10 +151,16 @@ function setRoundWinner(){
 }
 
 function gameLobby() {
-    setRoundWinner();
-    increaseRoundNumber();
-    initTimerDB();
-    initPixelsDB();
+    if (winnerAlreadySet == false) {
+        setRoundWinner();
+        winnerAlreadySet = true;
+    }
+    if (timeDiff >= (roundLength + 10) * 1000) {
+        increaseRoundNumber();
+        initTimerDB();
+        initPixelsDB();
+        winnerAlreadySet = false;
+    }
 }
 
 function requestHandler() {
@@ -161,23 +168,23 @@ function requestHandler() {
     var validRequest = 0;
     ref.on('child_added', function(data) {
         var request = data.val();
-        console.log('request added');
-        console.log('all', request);
-        console.log('x', request.x);
-        console.log('y', request.y);
-        console.log('color', request.color);
-        console.log('sAttack', request.sAttack);
+        // console.log('request added');
+        // console.log('all', request);
+        // console.log('x', request.x);
+        // console.log('y', request.y);
+        // console.log('color', request.color);
+        // console.log('sAttack', request.sAttack);
         validRequest += checkForLegalRequest(request.x, 0, 39);
         validRequest += checkForLegalRequest(request.y, 0, 39);
         validRequest += checkForLegalRequest(request.color, 0, 7);
         validRequest += checkForLegalRequest(request.sAttack, 0, 1);
         // validRequest += checkIfValidUser(request.user);
-        console.log('validRequest', validRequest == 0);
+        // console.log('validRequest', validRequest == 0);
         if (validRequest === 0) {
             var ref = database.ref('pixels/' + request.x + '/' + request.y + '/color');
             ref.once('value', function(snapshot) {
                 ref.set(request.color);
-                console.log('pixelvalue veranderd', request.color);
+                // console.log('pixelvalue veranderd', request.color);
             }, errData);
             if (request.sAttack) {
                 for (var i = 0; i < 3; i++) {
@@ -185,25 +192,25 @@ function requestHandler() {
                         var ref = database.ref('pixels/' + (request.x - 1 + j) + '/' + (request.y - 1 + i) + '/color');
                         ref.once('value', function(snapshot) {
                             ref.set(request.color);
-                            console.log('special attack', request.color);
+                            // console.log('special attack', request.color);
                         }, errData);
                     }
                 }
             }
         } else {
-            console.log('invalid request by:', request.user);
+            // console.log('invalid request by:', request.user);
         }
         database.ref('requests/pixelChange').remove();
-        console.log('request handled and deleted');
+        // console.log('request handled and deleted');
     }, errData);
 }
 
 function checkForLegalRequest(request, lowerLimit, upperLimit) {
     if (request >= lowerLimit && request <= upperLimit && typeof request === 'number' && (request % 1) === 0) {
-        console.log('legal request');
+        // console.log('legal request');
         return 0;
     } else {
-        console.log('illegal request');
+        // console.log('illegal request');
         return 1;
     }
 }
