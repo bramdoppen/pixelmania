@@ -14,7 +14,7 @@ function loginWithGoogle() {
         requestTeamAdd();
 
         // add user to the gathering
-        gathering.join(firebase.auth().localUserId, user.displayName);
+        gathering.join(localUserId, user.displayName);
 
         // write user data to the database
         writeUserData(user.uid, user.displayName, user.email, user.photoURL);
@@ -54,12 +54,12 @@ function getLoggedInUsers() {
     var usersInDb = firebase.database().ref('users/');
     usersInDb.on('child_added', function(data) {
         console.log(data.key, data.val().username);
-        document.getElementById("logged-in-users").innerHTML += "<div id='"+data.key+"' class='user'><img src=' "+ data.val().profile_picture +" '><p class='name'>"+ data.val().username +"</p></div>";
+        // document.getElementById("logged-in-users").innerHTML += "<div id='"+data.key+"' class='user'><img src=' "+ data.val().profile_picture +" '><p class='name'>"+ data.val().username +"</p></div>";
 
     });
     usersInDb.on('child_removed', function(data) {
         console.log('removed ' + data.key, data.val().username);
-        document.getElementById(data.key).remove();
+        // document.getElementById(data.key).remove();
     });
 }
 
