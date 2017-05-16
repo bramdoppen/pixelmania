@@ -11,6 +11,7 @@ function loginWithGoogle() {
 
         // remove the login popup when login is succesful
         removeLoginPopup();
+        requestTeamAdd();
 
         // add user to the gathering
         gathering.join(localUserId, user.displayName);
@@ -34,7 +35,7 @@ function signOutWithGoogle() {
     }).catch(function(error) {
         console.log(error)
     });
-}   
+}
 function writeUserData(uid, name, email, imageUrl) {
     var userid = database.ref('users/' + uid);
     userid.set({
@@ -71,4 +72,26 @@ function showLoginPopup() {
 function removeLoginPopup() {
     document.getElementById("mainOverlay").style.display = 'none';
     document.body.style.overflow = 'auto';
+}
+
+function requestTeamAdd(){
+    var ref = database.ref('requests/teamRequest/' + new Date().getTime());
+    ref.once('value', function(snapshot) {
+        data = {
+            user: localUserId,
+            type: "add"
+        }
+        ref.set(data);
+    }, errData);
+}
+
+function requestTeamRemove(){
+    var ref = database.ref('requests/teamRequest/' + new Date().getTime());
+    ref.once('value', function(snapshot) {
+        data = {
+            user: localUserId,
+            type: "remove"
+        }
+        ref.set(data);
+    }, errData);
 }

@@ -1,3 +1,14 @@
+// -------------------------------------------------------
+// -------------------------------------------------------
+// -------------------------------------------------------
+// PIXLReferee - This handles all the requests
+// -------------------------------------------------------
+// -------------------------------------------------------
+
+
+// -------------------------------------------------------
+// Setup
+// -------------------------------------------------------
 var database;
 var currentRound;
 var pixelValues = [];
@@ -20,6 +31,7 @@ var teamTwo = {
     imgPixels: []
 }
 var winnerAlreadySet = false;
+var teamCounterSwitch = 0;
 
 function preload() {
     fontBold = loadFont('./assets/courbd.ttf');
@@ -44,6 +56,7 @@ function setup() {
     updatePixelValues(field.width, field.height, 'images/firefox/', teamTwo.imgPixels);
 
     requestHandler();
+    teamRequestHandler();
 }
 
 console.log(pixelValues);
@@ -165,6 +178,11 @@ function gameLobby() {
     }
 }
 
+// -------------------------------------------------------
+// Requests
+// -------------------------------------------------------
+
+
 function requestHandler() {
     var ref = database.ref('requests/pixelChange');
     var validRequest = 0;
@@ -217,19 +235,67 @@ function checkForLegalRequest(request, lowerLimit, upperLimit) {
     }
 }
 
-function checkIfValidUser(user) {
-    var ref = database.ref('users/' + user);
-    ref.once('value', function(snapshot) {
-        console.log(user);
-        var validUser = snapshot.val() != null;
-        console.log('valid user:', validUser);
-        // if (validUser) {
-        //     return 0;
-        // } else {
-        //     return 1;
-        // }
+// -------------------------------------------------------
+// Teams
+// -------------------------------------------------------
+
+
+function teamRequestHandler() {
+    var ref = database.ref('requests/teamRequest');
+
+    ref.on('child_added', function(data) {
+        var request = data.val();
+        console.log('Team request added');
+        console.log('all', request);
+
+        var designatedTeam = chooseDesignatedTeam();
+
+        if(request.type == "add"){
+            var ref = database.ref('teams/' + designatedTeam + '/' + request.user);
+            ref.once('value', function(snapshot) {
+                ref.set(request.user);
+                console.log(request.user, ' toegevoegd aan team: ', designatedTeam);
+            }, errData);
+        } else if(request.type == "remove"){
+            database.ref('teams/team1/' + request.user).remove();
+            database.ref('teams/team2/' + request.user).remove();
+        }
+
+        database.ref('requests/teamRequest').remove();
     }, errData);
 }
+
+function chooseDesignatedTeam() {
+    if(teamCounterSwitch == 0) {
+        teamCounterSwitch = 1;
+        return "team1"
+    } else {
+        teamCounterSwitch = 0;
+        return "team2"
+    }
+}
+
+//count keys in team functie wordt niet meer gebruikt
+function countKeysInTeam(team) {
+    var teamGrootte;
+
+    var ref = database.ref('teams/' + team);
+    ref.once('value', function(snapshot) {
+        var teamValue = snapshot.val();
+        var teamKeys = Object.keys(teamValue);
+
+        teamGrootte = teamKeys.length;
+        console.log(teamGrootte);
+    }, errData);
+
+    console.log(teamGrootte);
+    return teamGrootte;
+}
+
+// -------------------------------------------------------
+// Draw
+// -------------------------------------------------------
+
 
 function draw() {
     getScore(field.width, field.height);
