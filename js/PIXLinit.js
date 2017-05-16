@@ -50,5 +50,17 @@ function initTimerDB() {
     time.set(currentTime);
 }
 
+function initTeamsDB() {
+    var team1 = database.ref('teams/team1');
+
+    var dataTeam1 = {color: 8};
+    team1.set(dataTeam1);
+
+    var team2 = database.ref('teams/team2');
+
+    var dataTeam2 = {color: 8};
+    team2.set(dataTeam2);
+}
+
 function draw() {
 }

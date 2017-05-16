@@ -46,6 +46,7 @@ var Gathering = (function() {
         };
 
         this.leave = function() {
+            requestTeamRemove();
             this.user.remove();
             this.myName = '';
         };
