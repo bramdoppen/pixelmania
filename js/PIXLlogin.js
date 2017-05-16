@@ -34,8 +34,7 @@ function signOutWithGoogle() {
     }).catch(function(error) {
         console.log(error)
     });
-}
-
+}   
 function writeUserData(uid, name, email, imageUrl) {
     var userid = database.ref('users/' + uid);
     userid.set({
