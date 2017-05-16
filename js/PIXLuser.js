@@ -5,7 +5,7 @@ var gathering = new Gathering(database, 'Pixelmania Room');
 var canvas;
 var currentRound;
 var pixelValues = [];
-var fr = 30;
+var fr = 120;
 var localTime;
 var serverTime;
 var timeDiff;
@@ -52,6 +52,8 @@ function preload() {
 }
 
 function setup() {
+    team = round(random(0, 1)) + 1;
+    console.log('team', team);
     pixelDensity(1);
     frameRate(fr);
     textFont('Courier New');
@@ -60,8 +62,7 @@ function setup() {
     canvas.parent('canvasContainer');
 
     getRoundNumber();
-    getScore('teamOne');
-    getScore('teamTwo');
+    getScore();
     getServerTime();
     getLoggedInUsers();
 
@@ -90,15 +91,18 @@ function getRoundNumber() {
     }, errData);
 }
 
-function getScore(team) {
-    var ref = database.ref('round/' + currentRound + '/' + team);
-    ref.on('value', function(snapshot) {
-        console.log('score', snapshot.val());
-        if (team == 'teamOne') {
-            teamOne.score = snapshot.val();
-        } else if (team == 'teamTwo') {
-            teamTwo.score = snapshot.val();
-        }
+function getScore() {
+    // var teamOneRef = database.ref('round/' + currentRound + '/score/teamOne');
+    var teamOneRef = database.ref('round/score/teamOne');
+    teamOneRef.on('value', function(data) {
+        console.log('score t1', data.val());
+        teamOne.score = data.val();
+    }, errData);
+    // var teamTwoRef = database.ref('round/' + currentRound + '/score/teamTwo');
+    var teamTwoRef = database.ref('round/score/teamTwo');
+    teamTwoRef.on('value', function(data) {
+        console.log('score t2', data.val());
+        teamTwo.score = data.val();
     }, errData);
 }
 
@@ -329,13 +333,15 @@ function drawPixel(col, row, arr, pixelSize, offsetX, offsetY) {
 
 function drawScore() {
     var total = teamOne.score + teamTwo.score;
-    var ratio = 720 / total;
-    fill('DarkTurquoise');
-    rect(840, 40, 20, teamOne.score * ratio);
-    fill('Tomato');
-    rect(840, 40 + teamOne.score * ratio, 20, teamTwo.score * ratio);
-    drawTeam(ratio, 880);
-    showCurrentLeader(ratio);
+    if (total > 0) {
+        var ratio = 720 / total;
+        fill('DarkTurquoise');
+        rect(840, 40, 20, teamOne.score * ratio);
+        fill('Tomato');
+        rect(840, 40 + teamOne.score * ratio, 20, teamTwo.score * ratio);
+        drawTeam(ratio, 880);
+        showCurrentLeader(ratio);
+    }
 }
 
 function drawTeam(ratio, y) {
@@ -433,8 +439,7 @@ function mousePressed() {
         lastClickedY = mouseY;
     }
     if (mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height) {
-        // changeColor();
-        changeColorNew();
+        changeColor();
     }
     if (mouseX > 840 && mouseX < 900 && mouseY > 840 && mouseY < 860) {
         if (loggedIn == false) {
@@ -456,7 +461,7 @@ function mousePressed() {
             readyToPlay = false;
         }
     }
-    console.log(floor(mouseX/20), floor(mouseY/20));
+    // console.log(floor(mouseX/20), floor(mouseY/20));
     return false;
 }
 
@@ -494,11 +499,12 @@ function mouseReleased() {
 //     }
 // }
 
-function changeColorNew() {
+function changeColor() {
     if (mouseX < 800 && mouseY < 800) {
         var x = floor(mouseX / 20);
         var y = floor(mouseY / 20);
         var ref = database.ref('requests/pixelChange/' + new Date().getTime());
+        drawPixel(x, y, pixelValues, 20, 0, 0);
         ref.once('value', function(snapshot) {
             data = {
                 x: x,
@@ -600,7 +606,7 @@ function draw() {
         image(teamTwo.img, 800, 0, 200, 200);
     }
     drawGrid(field.width, field.height);
-    // drawScore();
+    drawScore();
     showReticle();
     drawMinimap();
     drawTimer();

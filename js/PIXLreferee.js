@@ -114,7 +114,8 @@ function countMatchingColors(col, row, team) {
 }
 
 function updateScore(score, team) {
-    var ref = database.ref('round/' + currentRound + '/score/' + team);
+    // var ref = database.ref('round/' + currentRound + '/score/' + team);
+    var ref = database.ref('round/score/' + team);
     ref.set(score);
 }
 
@@ -140,7 +141,8 @@ function increaseRoundNumber() {
 }
 
 function setRoundWinner(){
-    var ref = database.ref('round/' + currentRound + '/winner');
+    // var ref = database.ref('round/' + currentRound + '/winner');
+    var ref = database.ref('round/winner');
     if(teamOne.score > teamTwo.score){
         ref.set(1);
     } else if (teamOne.score < teamTwo.score){
