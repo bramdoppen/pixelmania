@@ -38,6 +38,7 @@ var lastClickedY;
 
 var specialAttack = 5;
 
+
 // var colorArray = ['DarkTurquoise', 'LightPink', 'GreenYellow', 'Peru', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
 // var colorArray = ['#026B99', '#028495', '#285E6F', '#603229', '#371D18', '#89756E', '#BBA69C', '#E8D6C1'];
 var colorArray = [ '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE'];
@@ -109,17 +110,32 @@ function getServerTime() {
     }, errData);
 }
 
+function getUserPhotoFromDatabase(userid) {
+    var getPhoto = database.ref('users/'+ userid + '/profile_picture');
+    var gatheringProfilePhoto = "";
+    getPhoto.once('value', function(snapshot) {
+        gatheringProfilePhoto = snapshot.val();
+    }, errData);
+    return gatheringProfilePhoto;
+}
+
+
 function gatheringLiveUpdates() {
     // Attach a callback function to track updates
     // That function will be called (with the user count and array of users) every time user list updated
     gathering.onUpdated(function(count, users) {
         console.log(gathering.roomName + ' has '+ count +' member(s).');
-        console.log('Here is the updated users list -');
+
+        // empty the whole 'logged in users' field.
+        document.getElementById("logged-in-users").innerHTML = "";
+
         for(var i in users) {
-            console.log(users[i] + '(id: '+ i + ')');
+            document.getElementById("logged-in-users").innerHTML += "<div id='"+ i +"' class='user'><img src='"+getUserPhotoFromDatabase(i)+ "'><p class='name'>"+ users[i] +"</p></div>";
         }
+
     });
 }
+
 
 function getLoggedInUsers() {
     // var ref = database.ref('users');
@@ -136,16 +152,17 @@ function getLoggedInUsers() {
     //     });
     //
     // });
-    var usersInDb = firebase.database().ref('users/');
-    usersInDb.on('child_added', function(data) {
-        console.log(data.key, data.val().username);
-        document.getElementById("logged-in-users").innerHTML += "<div id='" + data.key + "' class='user'><img src=' " + data.val().profile_picture + " '><p class='name'>" + data.val().username + "</p></div>";
 
-    });
-    usersInDb.on('child_removed', function(data) {
-        console.log('removed ' + data.key, data.val().username);
-        document.getElementById(data.key).remove();
-    });
+    // var usersInDb = firebase.database().ref('users/');
+    // usersInDb.on('child_added', function(data) {
+    //     console.log(data.key, data.val().username);
+    //     document.getElementById("logged-in-users").innerHTML += "<div id='" + data.key + "' class='user'><img src=' " + data.val().profile_picture + " '><p class='name'>" + data.val().username + "</p></div>";
+    //
+    // });
+    // usersInDb.on('child_removed', function(data) {
+    //     console.log('removed ' + data.key, data.val().username);
+    //     document.getElementById(data.key).remove();
+    // });
 }
 
 function getButtonFromDB() {
