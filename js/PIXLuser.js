@@ -306,12 +306,12 @@ function drawPixel(col, row, arr, pixelSize, offsetX, offsetY) {
 function drawScore() {
     var total = teamOne.score + teamTwo.score;
     if (total > 0) {
-        var ratio = 720 / total;
+        var ratio = 800 / total;
         fill('DarkTurquoise');
-        rect(840, 40, 20, teamOne.score * ratio);
+        rect(800, 0, 3, teamOne.score * ratio);
         fill('Tomato');
-        rect(840, 40 + teamOne.score * ratio, 20, teamTwo.score * ratio);
-        drawTeam(ratio, 880);
+        rect(800, 0 + teamOne.score * ratio, 3, teamTwo.score * ratio);
+        // drawTeam(ratio, 810);
         showCurrentLeader(ratio);
     }
 }
@@ -338,7 +338,7 @@ function showCurrentLeader(ratio) {
         textStyle(BOLD);
         textSize(16);
         // text('TIED', 80 + (teamScore[0] + teamScore[1]) * ratio, 855);
-        text('TIED', 900, 405);
+        // text('TIED', 900, 405);
     }
 }
 
@@ -378,27 +378,27 @@ function drawMinimap() {
     // fill(255, 255, 255, 0);
     beginShape();
     // Exterior part of shape, clockwise winding
-    vertex(800, 0);
-    vertex(1000, 0);
-    vertex(1000, 200);
-    vertex(800, 200);
+    vertex(820, 0);
+    vertex(1020, 0);
+    vertex(1020, 200);
+    vertex(820, 200);
     if (keyIsDown(CONTROL) && specialAttack > 0 && x < field.width - 20 && x > 0 && y < field.height - 20 && y > 0) {
         // Interior part of shape, counter-clockwise winding
         beginContour();
-        vertex(800 + x / scale - 5, y / scale - 5);
-        vertex(800 + x / scale - 5, y / scale + 10);
-        vertex(800 + x / scale + 10, y / scale + 10);
-        vertex(800 + x / scale + 10, y / scale - 5);
+        vertex(820 + x / scale - 5, y / scale - 5);
+        vertex(820 + x / scale - 5, y / scale + 10);
+        vertex(820 + x / scale + 10, y / scale + 10);
+        vertex(820 + x / scale + 10, y / scale - 5);
         endContour();
         endShape(CLOSE);
         // rect(800 + x / scale - 5, y / scale - 5, 15, 15);
     } else if (x < field.width && y < field.height) {
         // Interior part of shape, counter-clockwise winding
         beginContour();
-        vertex(800 + x / scale, y / scale);
-        vertex(800 + x / scale, y / scale + 5);
-        vertex(800 + x / scale + 5, y / scale + 5);
-        vertex(800 + x / scale + 5, y / scale);
+        vertex(820 + x / scale, y / scale);
+        vertex(820 + x / scale, y / scale + 5);
+        vertex(820 + x / scale + 5, y / scale + 5);
+        vertex(820 + x / scale + 5, y / scale);
         endContour();
         endShape(CLOSE);
         // rect(800 + x / scale, y / scale, 5, 5);
@@ -483,7 +483,7 @@ function changeColor() {
                 y: y,
                 color: activeColor,
                 sAttack: 0,
-                user: localUserId
+                user: localUserId || 'not yet logged in'
             }
             if (keyIsDown(CONTROL) && specialAttack > 0) {
                 data.sAttack = 1;
@@ -503,19 +503,23 @@ function drawTimer() {
     var timer = document.getElementById('timer');
     timeDiff = floor(new Date().getTime() - serverTime);
     timer.innerHTML = roundLength - floor(timeDiff / 1000);
-    var barWidth = 600;
+    var barWidth = 800;
+    var barHeight = 3;
     var width = barWidth / (roundLength * 1000);
-    var padding = 100;
+    var padding = 0;
     if (timeDiff > (roundLength - 10) * 1000) {
         fill('Tomato');
     } else {
         fill('DimGray');
     }
     noStroke();
-    if (timeDiff > (roundLength - 10) * 1000) {
-        rect(padding + random(1, 5), 840 + random(1, 5), floor(timeDiff * width / 10) * 10, 20);
+    if (timeDiff > (roundLength * 1000)) {
+        text('The next game starts in: ' + (ceil(((roundLength + 10) * 1000 - timeDiff)/1000)) + ' seconds.', 400, 810);
+    // } else if (timeDiff > (roundLength - 10) * 1000) {
+    //     rect(padding + random(1, 5), 800 + random(1, 5), floor(timeDiff * width / 10) * 10, barHeight);
     } else {
-        rect(padding, 840, floor(timeDiff * width / 10) * 10, 20);
+        // rect(padding, 800, floor(timeDiff * width / 10) * 10, barHeight);
+        rect(padding, 800, timeDiff * width, barHeight);
     }
 }
 
@@ -573,9 +577,9 @@ function draw() {
     }
     background(220);
     if (team == 1) {
-        image(teamOne.img, 800, 0, 200, 200);
+        image(teamOne.img, 820, 0, 200, 200);
     } else if (team == 2) {
-        image(teamTwo.img, 800, 0, 200, 200);
+        image(teamTwo.img, 820, 0, 200, 200);
     }
     drawGrid(field.width, field.height);
     drawScore();
