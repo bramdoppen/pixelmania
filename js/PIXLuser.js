@@ -36,7 +36,7 @@ var showSelector = false;
 var lastClickedX;
 var lastClickedY;
 
-var specialAttack = true;
+var specialAttack = 5;
 
 // var colorArray = ['DarkTurquoise', 'LightPink', 'GreenYellow', 'Peru', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
 // var colorArray = ['#026B99', '#028495', '#285E6F', '#603229', '#371D18', '#89756E', '#BBA69C', '#E8D6C1'];
@@ -295,10 +295,14 @@ function drawGrid(width, height) {
 function drawPixel(col, row, arr, pixelSize, offsetX, offsetY) {
     // var color = arr[col][row];
     var color = colorArray[arr[col][row]];
-    // console.log(color);
-    noStroke();
-    fill(color);
-    rect(offsetX + col * pixelSize, offsetY + row * pixelSize, pixelSize, pixelSize);
+    if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(color)) {
+        // console.log('valid colorvalue', color);
+        noStroke();
+        fill(color);
+        rect(offsetX + col * pixelSize, offsetY + row * pixelSize, pixelSize, pixelSize);
+    } else {
+        console.log('invalid colorvalue', color);
+    }
 }
 
 function drawScore() {
@@ -346,11 +350,12 @@ function showReticle() {
         stroke(255, 100, 0);
         strokeWeight(1);
 
-        if (keyIsDown(ALT) && specialAttack && x < field.width && y < field.height) {
+        if (keyIsDown(ALT) && specialAttack > 0 && x < field.width && y < field.height) {
             rect(x - 20, y - 20, 60, 60);
             fill(colorArray[activeColor]);
             noStroke();
             rect(x + 10, y - 10, 20, 20);
+            text(specialAttack, x + 10, y - 10);
         } else if (x < field.width && y < field.height) {
             rect(x, y, 20, 20);
             fill(colorArray[activeColor]);
@@ -358,6 +363,45 @@ function showReticle() {
             noStroke();
             rect(x + 10, y - 10, 20, 20);
         }
+    }
+}
+
+function drawMinimap() {
+    var x = floor(mouseX / 20) * 20;
+    var y = floor(mouseY / 20) * 20;
+
+    var scale = 4;
+    // fill(255, 255, 255, .1);
+    fill('rgba(150, 150, 150, 0.75)');
+    noStroke();
+    // rect(800, 0, 200, 200);
+    // fill(255, 255, 255, 0);
+    beginShape();
+    // Exterior part of shape, clockwise winding
+    vertex(800, 0);
+    vertex(1000, 0);
+    vertex(1000, 200);
+    vertex(800, 200);
+    if (keyIsDown(ALT) && specialAttack > 0 && x < field.width - 20 && x > 0 && y < field.height - 20 && y > 0) {
+        // Interior part of shape, counter-clockwise winding
+        beginContour();
+        vertex(800 + x / scale - 5, y / scale - 5);
+        vertex(800 + x / scale - 5, y / scale + 10);
+        vertex(800 + x / scale + 10, y / scale + 10);
+        vertex(800 + x / scale + 10, y / scale - 5);
+        endContour();
+        endShape(CLOSE);
+        // rect(800 + x / scale - 5, y / scale - 5, 15, 15);
+    } else if (x < field.width && y < field.height) {
+        // Interior part of shape, counter-clockwise winding
+        beginContour();
+        vertex(800 + x / scale, y / scale);
+        vertex(800 + x / scale, y / scale + 5);
+        vertex(800 + x / scale + 5, y / scale + 5);
+        vertex(800 + x / scale + 5, y / scale);
+        endContour();
+        endShape(CLOSE);
+        // rect(800 + x / scale, y / scale, 5, 5);
     }
 }
 
@@ -390,7 +434,7 @@ function mousePressed() {
             readyToPlay = false;
         }
     }
-    // console.log(floor(mouseX/20), floor(mouseY/20));
+    console.log(floor(mouseX/20), floor(mouseY/20));
     return false;
 }
 
@@ -441,26 +485,12 @@ function changeColorNew() {
                 sAttack: 0,
                 user: localUserId
             }
+            if (keyIsDown(ALT) && specialAttack > 0) {
+                data.sAttack = 1;
+                specialAttack--;
+            }
             ref.set(data);
         }, errData);
-
-        if (keyIsDown(ALT) && specialAttack) {
-            for (var i = 0; i < 3; i++) {
-                for (var j = 0; j < 3; j++) {
-                    var ref = database.ref('requests/pixelChange/' + new Date().getTime());
-                    ref.once('value', function(snapshot) {
-                        data = {
-                            x: x - 1 + j,
-                            y: y - 1 + i,
-                            color: activeColor,
-                            sAttack: 1,
-                            user: localUserId
-                        }
-                        ref.set(data);
-                    }, errData);
-                }
-            }
-        }
     }
 }
 
@@ -542,10 +572,11 @@ function draw() {
         activeColor = 7;
     }
     background(220);
-    // image(teamOne.img, 800, 0, 400, 400);
+    image(teamOne.img, 800, 0, 200, 200);
     drawGrid(field.width, field.height);
     // drawScore();
     showReticle();
+    drawMinimap();
     drawTimer();
     drawSelector();
     // console.log(activeColor);

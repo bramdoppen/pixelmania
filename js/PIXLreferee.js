@@ -141,11 +141,11 @@ function increaseRoundNumber() {
 function setRoundWinner(){
     var ref = database.ref('round/' + currentRound + '/winner');
     if(teamOne.score > teamTwo.score){
-        ref.set('1');
+        ref.set(1);
     } else if (teamOne.score < teamTwo.score){
-        ref.set('2');
+        ref.set(2);
     } else{
-        ref.set('3');
+        ref.set(3);
     }
 }
 
@@ -171,17 +171,29 @@ function requestHandler() {
         validRequest += checkForLegalRequest(request.y, 0, 39);
         validRequest += checkForLegalRequest(request.color, 0, 7);
         validRequest += checkForLegalRequest(request.sAttack, 0, 1);
-        validRequest += checkIfValidUser(request.user);
-        console.log('validRequest', validRequest);
+        // validRequest += checkIfValidUser(request.user);
+        console.log('validRequest', validRequest == 0);
         if (validRequest === 0) {
             var ref = database.ref('pixels/' + request.x + '/' + request.y + '/color');
             ref.once('value', function(snapshot) {
                 ref.set(request.color);
+                console.log('pixelvalue veranderd', request.color);
             }, errData);
+            if (request.sAttack) {
+                for (var i = 0; i < 3; i++) {
+                    for (var j = 0; j < 3; j++) {
+                        var ref = database.ref('pixels/' + (request.x - 1 + j) + '/' + (request.y - 1 + i) + '/color');
+                        ref.once('value', function(snapshot) {
+                            ref.set(request.color);
+                            console.log('special attack', request.color);
+                        }, errData);
+                    }
+                }
+            }
         } else {
             console.log('invalid request by:', request.user);
         }
-        // ref.remove();
+        database.ref('requests/pixelChange').remove();
         console.log('request handled and deleted');
     }, errData);
 }
@@ -202,11 +214,11 @@ function checkIfValidUser(user) {
         console.log(user);
         var validUser = snapshot.val() != null;
         console.log('valid user:', validUser);
-        if (validUser) {
-            return 0;
-        } else {
-            return 1;
-        }
+        // if (validUser) {
+        //     return 0;
+        // } else {
+        //     return 1;
+        // }
     }, errData);
 }
 
