@@ -1,3 +1,14 @@
+// -------------------------------------------------------
+// -------------------------------------------------------
+// -------------------------------------------------------
+// PIXLReferee - This handles all the requests
+// -------------------------------------------------------
+// -------------------------------------------------------
+
+
+// -------------------------------------------------------
+// Setup
+// -------------------------------------------------------
 var database;
 var currentRound;
 var pixelValues = [];
@@ -158,6 +169,11 @@ function gameLobby() {
     initPixelsDB();
 }
 
+// -------------------------------------------------------
+// Requests
+// -------------------------------------------------------
+
+
 function requestHandler() {
     var ref = database.ref('requests/pixelChange');
     var validRequest = 0;
@@ -210,6 +226,11 @@ function checkForLegalRequest(request, lowerLimit, upperLimit) {
     }
 }
 
+// -------------------------------------------------------
+// Teams
+// -------------------------------------------------------
+
+
 function teamRequestHandler() {
     var ref = database.ref('requests/teamRequest');
 
@@ -236,11 +257,6 @@ function teamRequestHandler() {
 }
 
 function chooseDesignatedTeam() {
-    // var teamGrootteTeam1 = countKeysInTeam("team1");
-    // var teamGrootteTeam2 = countKeysInTeam("team2");
-
-    // console.log(teamGrootteTeam1, " || ", teamGrootteTeam2)
-
     if(teamCounterSwitch == 0) {
         teamCounterSwitch = 1;
         return "team1"
@@ -248,10 +264,6 @@ function chooseDesignatedTeam() {
         teamCounterSwitch = 0;
         return "team2"
     }
-    // else {
-    //     var randomOneOrTwo = Math.round(Math.random()) + 1;
-    //     return ("team" + randomOneOrTwo.toString());
-    // }
 }
 
 //count keys in team functie wordt niet meer gebruikt
@@ -270,6 +282,11 @@ function countKeysInTeam(team) {
     console.log(teamGrootte);
     return teamGrootte;
 }
+
+// -------------------------------------------------------
+// Draw
+// -------------------------------------------------------
+
 
 function draw() {
     getScore(field.width, field.height);
