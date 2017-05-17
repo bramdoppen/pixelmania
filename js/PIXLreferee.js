@@ -34,7 +34,7 @@ var winnerAlreadySet = false;
 var teamCounterSwitch = 0;
 
 function preload() {
-    fontBold = loadFont('./assets/courbd.ttf');
+    fontBold = loadFont('assets/courbd.ttf');
 }
 
 function setup() {
