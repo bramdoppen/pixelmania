@@ -82,6 +82,11 @@ function setup() {
 
     // throw login screen to user
     showLoginPopup();
+    if (team == 1) {
+        document.getElementById('loginButton').style.backgroundColor = 'rgb(204, 40, 34)';
+    } else {
+        document.getElementById('loginButton').style.backgroundColor = 'rgb(79, 42, 129)';
+    }
 }
 
 function getRoundNumber() {
@@ -409,6 +414,15 @@ function mousePressed() {
             readyToPlay = false;
         }
     }
+    if (mouseX > 870 && mouseX < 970 && mouseY > 240 && mouseY < 260) {
+        if (team == 1) {
+            team = 2;
+            getButtonFromDB();
+        } else {
+            team = 1;
+            getButtonFromDB();
+        }
+    }
     // console.log(floor(mouseX/20), floor(mouseY/20));
     return false;
 }
@@ -541,10 +555,10 @@ function drawWinner(){
 
    switch (winner) {
         case 1:
-            text('End winner is team number 1!', 400, 400);
+            text('Winner is TEAM MAGIC CAT!', 400, 400);
             break;
         case 2:
-            text('End winner is team number 2!', 400, 400);
+            text('Winner is TEAM JOKER!', 400, 400);
             break;
         case 3:
             text('Round draw...', 400, 400);
@@ -552,6 +566,16 @@ function drawWinner(){
         default:
             break;
     }
+}
+
+function drawSwitchButton() {
+    noStroke();
+    fill('#bbb');
+    rect(870, 240, 100, 20);
+    fill('#eee');
+    textSize(12);
+    textAlign(CENTER);
+    text('switch team', 920, 253);
 }
 
 function draw() {
@@ -573,4 +597,5 @@ function draw() {
     // console.log(activeColor);
     drawWinner();
     getEndWinner();
+    drawSwitchButton();
 }

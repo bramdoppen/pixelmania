@@ -61,7 +61,7 @@ function getLoggedInUsers() {
 }
 
 function showLoginPopup() {
-    document.getElementById("mainOverlay").innerHTML = '<div class="innerContent"><h1>Klaar om te winnen?</h1><div class="buttonWrapper"><button onclick = "loginWithGoogle()">Inloggen met Google</button></div></div>';
+    document.getElementById("mainOverlay").innerHTML = '<div class="innerContent"><div class="buttonWrapper"><button id="loginButton" onclick = "loginWithGoogle()">Play</button></div></div>';
     document.getElementById("mainOverlay").style.display = 'block';
     document.body.style.overflow = 'hidden';
 }

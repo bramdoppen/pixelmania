@@ -2,8 +2,10 @@
     /*padding-left: 40px;
     padding-top: 40px;*/
 }
+
 body {
-    padding: 0; margin: 0;
+    padding: 0;
+    margin: 0;
     background-color: #cdcdcd;
 }
 
@@ -26,7 +28,7 @@ body {
     top: 20px;
     width: 20px;
     margin: 0px 20px;
-    background-color: rgba(200, 200, 200, 0.5);
+    background: #ddd;
     padding: 20px 20px 20px 20px;
     /*border: 2px solid;*/
     /*border-radius: 15px 0 0 15px;*/
@@ -43,18 +45,20 @@ body {
 }
 
 .buttonListing button {
-    border:none;
-    width:20px;
-    height:20px;
+    border: none;
+    width: 20px;
+    height: 20px;
     color: transparent;
 }
 
 .buttonListing button:focus {
     outline: none;
 }
+
 .buttonListing button:active {
     border: 4px solid #ddd !important;
 }
+
 .activeColor {
     border: 4px solid #ddd !important;
 }
@@ -64,6 +68,8 @@ body {
     bottom: 0;
     /*border: 2px solid #9fe2ff;*/
 }
+
+
 /*#logged-in-users:before {
     width: 70px;
     height: 20px;
@@ -77,16 +83,19 @@ body {
     font-family: 'Jaldi', sans-serif;
     font-weight: 700;
 }*/
-#logged-in-users > .user {
+
+#logged-in-users>.user {
     display: inline-block;
     background: #dedede;
     padding: 0px 0px;
     position: relative;
 }
-#logged-in-users > .user > img {
+
+#logged-in-users>.user>img {
     width: 20px;
 }
-#logged-in-users > .user > p.name {
+
+#logged-in-users>.user>p.name {
     display: inline-block;
     margin: 0;
     top: -10px;
@@ -107,10 +116,11 @@ body {
     z-index: 10;
     background: rgba(0, 0, 0, 0.54);
 }
+
 .innerContent {
     content: "";
-    width: 98vw;
-    height: 98vh;
+    width: 480px;
+    height: 240px;
     position: absolute;
     top: 0;
     bottom: 0;
@@ -118,30 +128,38 @@ body {
     right: 0;
     margin: auto;
     background: white;
-    color:white;
-    border-radius: 15px;
-    padding: 50px;
+    color: white;
+    /*border-radius: 15px;*/
+    padding: 0px;
     box-sizing: border-box;
-    background-image:url('/assets/image/battle-win.png');
-    background-size: cover;
+    background-image: url('/assets/pixelmania2.png');
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
 }
 
-
 h1 {
     font-family: 'Montserrat', sans-serif;
 }
+
 .innerContent h1 {
     font-size: 50px;
 }
+
 .buttonWrapper button {
-    background: #7676e8;
+    position: relative;
     border: 0;
+    width: 60%;
     font-family: Jaldi;
     font-size: 13px;
     font-weight: 700;
     color: white;
-    border-radius: 5px;
+    /*border-radius: 5px;*/
+    top: 180px;
+    margin-left: 20%;
     padding: 10px 14px;
+}
+
+.buttonWrapper button:hover {
+    background: #777;
 }
