@@ -15,7 +15,7 @@ var pixelValues = [];
 var localTime;
 var serverTime;
 var timeDiff;
-var roundLength = 30;
+var roundLength = 300;
 var field = {
     width: 800,
     height: 800
@@ -39,27 +39,19 @@ function preload() {
 
 function setup() {
     textFont('Courier New');
-    // noCursor();
     localTime = new Date().getTime();
-
     database = firebase.database();
-
     getRoundNumber();
     getServerTime();
-
     pixelValues = initializePixelValues(field.width, field.height);
     teamOne.imgPixels = initializePixelValues(field.width, field.height);
     teamTwo.imgPixels = initializePixelValues(field.width, field.height);
-    // updatePixelValues(field.width, field.height, 'round/' + currentRound + '/pixels/', pixelValues);
     updatePixelValues(field.width, field.height, 'pixels/', pixelValues);
     updatePixelValues(field.width, field.height, 'images/cat/', teamOne.imgPixels);
     updatePixelValues(field.width, field.height, 'images/joker/', teamTwo.imgPixels);
-
     requestHandler();
-    teamRequestHandler();
+    // teamRequestHandler();
 }
-
-console.log(pixelValues);
 
 function getRoundNumber() {
     var ref = database.ref('currentRound');
@@ -72,7 +64,7 @@ function getServerTime() {
     var ref = database.ref('time');
     ref.on('value', function(snapshot) {
         serverTime = snapshot.val();
-        console.log(serverTime);
+        // console.log('A new round has started at', serverTime);
     }, errData);
 }
 
@@ -111,7 +103,7 @@ function getScore(width, height) {
             teamTwo.score += countMatchingColors(col, row, teamTwo);
         }
     }
-    console.log(teamOne.score + ' / 1600', teamTwo.score + ' / 1600');
+    console.log('Team 1:', teamOne.score, 'Team 2:', teamTwo.score);
 }
 
 function countMatchingColors(col, row, team) {
@@ -127,7 +119,6 @@ function countMatchingColors(col, row, team) {
 }
 
 function updateScore(score, team) {
-    // var ref = database.ref('round/' + currentRound + '/score/' + team);
     var ref = database.ref('round/score/' + team);
     ref.set(score);
 }
@@ -153,8 +144,7 @@ function increaseRoundNumber() {
     ref.set(currentRound);
 }
 
-function setRoundWinner(){
-    // var ref = database.ref('round/' + currentRound + '/winner');
+function setRoundWinner() {
     var ref = database.ref('round/winner');
     if(teamOne.score > teamTwo.score){
         ref.set(1);
@@ -171,7 +161,6 @@ function gameLobby() {
         winnerAlreadySet = true;
     }
     if (timeDiff >= (roundLength + 10) * 1000) {
-        // increaseRoundNumber();
         initRoundWinner();
         initTimerDB();
         initPixelsDB();
@@ -189,23 +178,17 @@ function requestHandler() {
     var validRequest = 0;
     ref.on('child_added', function(data) {
         var request = data.val();
-        // console.log('request added');
-        // console.log('all', request);
-        // console.log('x', request.x);
-        // console.log('y', request.y);
-        // console.log('color', request.color);
-        // console.log('sAttack', request.sAttack);
+        console.log('request by:', request.user, 'x:', request.x, 'y:', request.y, 'color:', request.color, 'sAttack:', request.sAttack);
         validRequest += checkForLegalRequest(request.x, 0, 39);
         validRequest += checkForLegalRequest(request.y, 0, 39);
         validRequest += checkForLegalRequest(request.color, 0, 7);
         validRequest += checkForLegalRequest(request.sAttack, 0, 1);
         // validRequest += checkIfValidUser(request.user);
-        // console.log('validRequest', validRequest == 0);
+        console.log('validRequest', validRequest == 0);
         if (validRequest === 0) {
             var ref = database.ref('pixels/' + request.x + '/' + request.y + '/color');
             ref.once('value', function(snapshot) {
                 ref.set(request.color);
-                // console.log('pixelvalue veranderd', request.color);
             }, errData);
             if (request.sAttack) {
                 for (var i = 0; i < 3; i++) {
@@ -213,16 +196,14 @@ function requestHandler() {
                         var ref = database.ref('pixels/' + (request.x - 1 + j) + '/' + (request.y - 1 + i) + '/color');
                         ref.once('value', function(snapshot) {
                             ref.set(request.color);
-                            // console.log('special attack', request.color);
                         }, errData);
                     }
                 }
             }
         } else {
-            // console.log('invalid request by:', request.user);
+            console.log('invalid request by:', request.user);
         }
         database.ref('requests/pixelChange').remove();
-        // console.log('request handled and deleted');
     }, errData);
 }
 
@@ -241,62 +222,61 @@ function checkForLegalRequest(request, lowerLimit, upperLimit) {
 // -------------------------------------------------------
 
 
-function teamRequestHandler() {
-    var ref = database.ref('requests/teamRequest');
-
-    ref.on('child_added', function(data) {
-        var request = data.val();
-        console.log('Team request added');
-        console.log('all', request);
-
-        var designatedTeam = chooseDesignatedTeam();
-
-        if(request.type == "add"){
-            var ref = database.ref('teams/' + designatedTeam + '/' + request.user);
-            ref.once('value', function(snapshot) {
-                ref.set(request.user);
-                console.log(request.user, ' toegevoegd aan team: ', designatedTeam);
-            }, errData);
-        } else if(request.type == "remove"){
-            database.ref('teams/team1/' + request.user).remove();
-            database.ref('teams/team2/' + request.user).remove();
-        }
-
-        database.ref('requests/teamRequest').remove();
-    }, errData);
-}
-
-function chooseDesignatedTeam() {
-    if(teamCounterSwitch == 0) {
-        teamCounterSwitch = 1;
-        return "team1"
-    } else {
-        teamCounterSwitch = 0;
-        return "team2"
-    }
-}
-
-//count keys in team functie wordt niet meer gebruikt
-function countKeysInTeam(team) {
-    var teamGrootte;
-
-    var ref = database.ref('teams/' + team);
-    ref.once('value', function(snapshot) {
-        var teamValue = snapshot.val();
-        var teamKeys = Object.keys(teamValue);
-
-        teamGrootte = teamKeys.length;
-        console.log(teamGrootte);
-    }, errData);
-
-    console.log(teamGrootte);
-    return teamGrootte;
-}
+// function teamRequestHandler() {
+//     var ref = database.ref('requests/teamRequest');
+//
+//     ref.on('child_added', function(data) {
+//         var request = data.val();
+//         console.log('Team request added');
+//         console.log('all', request);
+//
+//         var designatedTeam = chooseDesignatedTeam();
+//
+//         if(request.type == "add"){
+//             var ref = database.ref('teams/' + designatedTeam + '/' + request.user);
+//             ref.once('value', function(snapshot) {
+//                 ref.set(request.user);
+//                 console.log(request.user, ' toegevoegd aan team: ', designatedTeam);
+//             }, errData);
+//         } else if(request.type == "remove"){
+//             database.ref('teams/team1/' + request.user).remove();
+//             database.ref('teams/team2/' + request.user).remove();
+//         }
+//
+//         database.ref('requests/teamRequest').remove();
+//     }, errData);
+// }
+//
+// function chooseDesignatedTeam() {
+//     if(teamCounterSwitch == 0) {
+//         teamCounterSwitch = 1;
+//         return "team1"
+//     } else {
+//         teamCounterSwitch = 0;
+//         return "team2"
+//     }
+// }
+//
+// //count keys in team functie wordt niet meer gebruikt
+// function countKeysInTeam(team) {
+//     var teamGrootte;
+//
+//     var ref = database.ref('teams/' + team);
+//     ref.once('value', function(snapshot) {
+//         var teamValue = snapshot.val();
+//         var teamKeys = Object.keys(teamValue);
+//
+//         teamGrootte = teamKeys.length;
+//         console.log(teamGrootte);
+//     }, errData);
+//
+//     console.log(teamGrootte);
+//     return teamGrootte;
+// }
 
 // -------------------------------------------------------
 // Draw
 // -------------------------------------------------------
-
 
 function draw() {
     getScore(field.width, field.height);

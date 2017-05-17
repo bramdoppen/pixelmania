@@ -1,6 +1,5 @@
 var database;
 var canvas;
-var fr = 30;
 var field = { width: 800, height: 800 }
 var sameColor = 0;
 
@@ -23,6 +22,8 @@ function initPixelsDB() {
     }
 }
 
+
+// Converts hex values to a 0-7 value according to the color palette
 function convertColor() {
     for (var i = 0; i < 40; i++) {
         for (var j = 0; j < 40; j++) {

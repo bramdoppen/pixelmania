@@ -9,7 +9,8 @@ var fr = 120;
 var localTime;
 var serverTime;
 var timeDiff;
-var roundLength = 30;
+var isWindowed = false;
+var roundLength = 300;
 var field = {
     width: 800,
     height: 800
@@ -42,6 +43,8 @@ var specialAttack = 5;
 var colorArray = [ '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE'];
 var buttonKeys;
 var winner;
+var loggedIn = false;
+var gameInProgress = false;
 
 function preload() {
     fontBold = loadFont('assets/courbd.ttf');
@@ -62,17 +65,9 @@ function setup() {
     getScore();
     getServerTime();
     getLoggedInUsers();
-
     getButtonFromDB();
-
-    pixelValues = initializePixelValues(field.width, field.height);
-    teamOne.imgPixels = initializePixelValues(field.width, field.height);
-    teamTwo.imgPixels = initializePixelValues(field.width, field.height);
-    updatePixelValues(field.width, field.height, 'pixels/', pixelValues);
-    updatePixelValues(field.width, field.height, 'images/cat/', teamOne.imgPixels);
-    updatePixelValues(field.width, field.height, 'images/joker/', teamTwo.imgPixels);
-
-    getButtonFromDB();
+    initializeAndUpdatePixels();
+    // getButtonFromDB();
     gatheringLiveUpdates();
 
     // throw login screen to user
@@ -82,6 +77,15 @@ function setup() {
     } else {
         document.getElementById('loginButton').style.backgroundColor = 'rgb(79, 42, 129)';
     }
+}
+
+function initializeAndUpdatePixels() {
+    pixelValues = initializePixelValues(field.width, field.height);
+    teamOne.imgPixels = initializePixelValues(field.width, field.height);
+    teamTwo.imgPixels = initializePixelValues(field.width, field.height);
+    updatePixelValues(field.width, field.height, 'pixels/', pixelValues);
+    updatePixelValues(field.width, field.height, 'images/cat/', teamOne.imgPixels);
+    updatePixelValues(field.width, field.height, 'images/joker/', teamTwo.imgPixels);
 }
 
 function getRoundNumber() {
@@ -159,7 +163,6 @@ function changeActiveColor(colorCode, key) {
     var colorTag = colorCode.substr(1);
     var prevActiveColorButton = document.getElementById(activeColorIdentifier);
     var activeColorButton = document.getElementById(colorTag);
-
     prevActiveColorButton.className = "";
     activeColor = key;
     activeColorIdentifier = colorTag;
@@ -169,44 +172,25 @@ function changeActiveColor(colorCode, key) {
 function changeActiveColorSetup(colorCode, key) {
     var colorTag = colorCode.substr(1);
     var activeColorButton = document.getElementById(colorTag);
-
     activeColorIdentifier = colorTag;
     activeColor = key;
     activeColorButton.className = "activeColor";
 }
 
 function keyTyped(){
-    if (key === '1') {
-        activeColor = 0;
-        changeActiveColorCss(1);
-    } else if (key === '2'){
-        activeColor = 1;
-        changeActiveColorCss(2);
-    } else if (key === '3'){
-        activeColor = 2;
-        changeActiveColorCss(3);
-    } else if (key === '4'){
-        activeColor = 3;
-        changeActiveColorCss(4);
-    } else if (key === '5'){
-        activeColor = 4;
-        changeActiveColorCss(5);
-    } else if (key === '6'){
-        activeColor = 5;
-        changeActiveColorCss(6);
-    } else if (key === '7'){
-        activeColor = 6;
-        changeActiveColorCss(7);
-    } else if (key === '8'){
-        activeColor = 7;
-        changeActiveColorCss(8);
-    }
+    if (key === '1') { activeColor = 0; changeActiveColorCss(1); }
+    else if (key === '2') { activeColor = 1; changeActiveColorCss(2); }
+    else if (key === '3') { activeColor = 2; changeActiveColorCss(3); }
+    else if (key === '4') { activeColor = 3; changeActiveColorCss(4); }
+    else if (key === '5') { activeColor = 4; changeActiveColorCss(5); }
+    else if (key === '6') { activeColor = 5; changeActiveColorCss(6); }
+    else if (key === '7') { activeColor = 6; changeActiveColorCss(7); }
+    else if (key === '8') { activeColor = 7; changeActiveColorCss(8); }
 }
 
 function changeActiveColorCss(number){
     var mainDiv = document.getElementById('colorSelection');
     var x = mainDiv.children[0].children[number-1].children[0];
-
     for (var i = 0; i < 8; i++) {
          mainDiv.children[0].children[i].children[0].className = "";
     }
@@ -277,7 +261,6 @@ function showReticle() {
         noFill();
         stroke(255, 100, 0);
         strokeWeight(1);
-
         if (keyIsDown(CONTROL) && specialAttack >= 0 && x >= 20 && x < field.width - 20 && y >= 20 && y < field.height - 20) {
             rect(x - 20, y - 20, 60, 60);
             fill(colorArray[activeColor]);
@@ -350,24 +333,35 @@ function drawMinimap() {
 }
 
 function mousePressed() {
-    if (mouseButton == RIGHT && mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height) {
-        lastClickedX = mouseX;
-        lastClickedY = mouseY;
-    }
-    if (mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height) {
-        changeColor();
-    }
-    if (mouseX > 870 && mouseX < 970 && mouseY > 220 && mouseY < 240) {
-        if (team == 1) {
-            team = 2;
-            getButtonFromDB();
-        } else {
-            team = 1;
-            getButtonFromDB();
+    if (loggedIn) {
+        if (mouseButton == RIGHT && mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height) {
+            lastClickedX = mouseX;
+            lastClickedY = mouseY;
         }
-    }
-    if (mouseX > 820 && mouseX < 920 && mouseY > 320 && mouseY < 460) {
-        hideInfo = true;
+        if (mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height && gameInProgress) {
+            changeColor();
+        }
+        if (mouseX > 870 && mouseX < 970 && mouseY > 220 && mouseY < 240) {
+            if (team == 1) {
+                team = 2;
+                getButtonFromDB();
+            } else {
+                team = 1;
+                getButtonFromDB();
+            }
+        }
+        if (mouseX > 820 && mouseX < 920 && mouseY > 320 && mouseY < 460) {
+            hideInfo = true;
+        }
+        if (mouseX > 870 && mouseX < 970 && mouseY > 780 && mouseY < 800) {
+            var fs = fullscreen();
+            fullscreen(!fs);
+            if (isWindowed) {
+                isWindowed = false;
+            } else {
+                isWindowed = true;
+            }
+        }
     }
     return false;
 }
@@ -384,58 +378,56 @@ function mouseReleased() {
     }
 }
 
-function changeColor() {
-    if (mouseX < 800 && mouseY < 800) {
-        var x = floor(mouseX / 20);
-        var y = floor(mouseY / 20);
-        var ref = database.ref('pixels/' + x + '/' + y + '/color');
-        ref.once('value', function(snapshot) {
-            ref.set(activeColor);
-        }, errData);
-
-        if (keyIsDown(CONTROL) && specialAttack > 0) {
-            for (var i = 0; i < 3; i++) {
-                for (var j = 0; j < 3; j++) {
-                    var ref = database.ref('pixels/' + (x - 1 + j) + '/' + (y - 1 + i) + '/color');
-                    ref.once('value', function(snapshot) {
-                        ref.set(activeColor);
-                    }, errData);
-                }
-            }
-            specialAttack--;
-        }
-    }
-}
-
 // function changeColor() {
 //     if (mouseX < 800 && mouseY < 800) {
 //         var x = floor(mouseX / 20);
 //         var y = floor(mouseY / 20);
-//         var ref = database.ref('requests/pixelChange/' + new Date().getTime());
-//         drawPixel(x, y, pixelValues, 20, 0, 0);
+//         var ref = database.ref('pixels/' + x + '/' + y + '/color');
 //         ref.once('value', function(snapshot) {
-//             data = {
-//                 x: x,
-//                 y: y,
-//                 color: activeColor,
-//                 sAttack: 0,
-//                 user: localUserId || 'not yet logged in'
-//             }
-//             if (keyIsDown(CONTROL) && specialAttack > 0) {
-//                 data.sAttack = 1;
-//                 specialAttack--;
-//             }
-//             ref.set(data);
+//             ref.set(activeColor);
 //         }, errData);
+//         if (keyIsDown(CONTROL) && specialAttack > 0) {
+//             for (var i = 0; i < 3; i++) {
+//                 for (var j = 0; j < 3; j++) {
+//                     var ref = database.ref('pixels/' + (x - 1 + j) + '/' + (y - 1 + i) + '/color');
+//                     ref.once('value', function(snapshot) {
+//                         ref.set(activeColor);
+//                     }, errData);
+//                 }
+//             }
+//             specialAttack--;
+//         }
 //     }
 // }
+
+function changeColor() {
+    if (mouseX < 800 && mouseY < 800) {
+        var x = floor(mouseX / 20);
+        var y = floor(mouseY / 20);
+        var ref = database.ref('requests/pixelChange/' + new Date().getTime());
+        drawPixel(x, y, pixelValues, 20, 0, 0);
+        ref.once('value', function(snapshot) {
+            data = {
+                x: x,
+                y: y,
+                color: activeColor,
+                sAttack: 0,
+                user: localUserId || 'not yet logged in'
+            }
+            if (keyIsDown(CONTROL) && specialAttack > 0) {
+                data.sAttack = 1;
+                specialAttack--;
+            }
+            ref.set(data);
+        }, errData);
+    }
+}
 
 function errData(err) {
     console.log("error:", err);
 }
 
 function drawTimer() {
-    var timer = document.getElementById('timer');
     timeDiff = floor(new Date().getTime() - serverTime);
     var barWidth = 800;
     var barHeight = 3;
@@ -455,8 +447,10 @@ function drawTimer() {
         textStyle(BOLD);
         textSize(16);
         text('The next game starts in: ' + (ceil(((roundLength + 10) * 1000 - timeDiff)/1000)) + ' seconds.', 400, 420);
+        gameInProgress = false;
     } else {
         rect(padding, 800, timeDiff * width, barHeight);
+        gameInProgress = true;
     }
 }
 
@@ -495,13 +489,13 @@ function drawWinner(){
 
    switch (winner) {
         case 1:
-            text('Winner is TEAM MAGIC CAT!', 400, 400);
+            text('Team MAGIC CAT wins!', 400, 400);
             break;
         case 2:
-            text('Winner is TEAM JOKER!', 400, 400);
+            text('Team JOKER wins!', 400, 400);
             break;
         case 3:
-            text('Round draw...', 400, 400);
+            text('Draw...', 400, 400);
             break;
         default:
             break;
@@ -524,24 +518,57 @@ function drawSwitchButton() {
     text('switch team', 920, 233);
 }
 
-function drawInfo() {
-    textAlign(LEFT);
-    textSize(16);
-    var s = "PIXLmania. Two teams and a single playing field. Try to replicate your team's image while the other team does the same.";
-    fill(50);
-    text(s, 820, 320, 200, 140);
+function drawFullscreenButton() {
+    noStroke();
+    fill('#BBB');
+    rect(870, 780, 100, 20);
+    fill('#EEE');
+    textSize(12);
+    textAlign(CENTER);
+    if (isWindowed) {
+        text('windowed', 920, 793);
+    } else {
+        text('fullscreen', 920, 793);
+    }
 }
 
-function draw() {
-    if ((activeColor === 0) == false && (activeColor == 0) == true) {
-        activeColor = 7;
+function drawInfo() {
+    if (hideInfo == false) {
+        textAlign(LEFT);
+        textSize(16);
+        var s = "PIXLmania. Two teams and a single playing field. Try to replicate your team's image while the other team does the same.";
+        fill(50);
+        text(s, 820, 320, 200, 140);
     }
-    background(220);
+}
+
+function drawTeamImage() {
     if (team == 1) {
         image(teamOne.img, 820, 0, 200, 200);
     } else if (team == 2) {
         image(teamTwo.img, 820, 0, 200, 200);
     }
+}
+
+function activeColorBugFix() {
+    if ((activeColor === 0) == false && (activeColor == 0) == true) {
+        activeColor = 7;
+    }
+}
+
+function checkIfLoggedIn() {
+    if (localUserId == undefined) {
+        loggedIn = false;
+    } else {
+        loggedIn = true;
+    }
+}
+
+function draw() {
+    activeColorBugFix();
+    checkIfLoggedIn();
+    background(220);
+    drawTeamImage();
     drawGrid(field.width, field.height);
     drawScore();
     showReticle();
@@ -551,7 +578,6 @@ function draw() {
     drawWinner();
     getEndWinner();
     drawSwitchButton();
-    if (hideInfo == false) {
-        drawInfo();
-    }
+    drawFullscreenButton();
+    drawInfo();
 }
