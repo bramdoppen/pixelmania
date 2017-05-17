@@ -1,12 +1,12 @@
 #canvascontainer {
-    /*padding-left: 40px;
-    padding-top: 40px;*/
+    padding-left: 20px;
+    padding-top: 20px;
 }
 
 body {
     padding: 0;
     margin: 0;
-    background-color: #cdcdcd;
+    background-color: #ddd;
 }
 
 #timer {
@@ -28,7 +28,7 @@ body {
     top: 20px;
     width: 20px;
     margin: 0px 20px;
-    background: #ddd;
+    background: #eee;
     padding: 20px 20px 20px 20px;
     /*border: 2px solid;*/
     /*border-radius: 15px 0 0 15px;*/
@@ -56,11 +56,11 @@ body {
 }
 
 .buttonListing button:active {
-    border: 4px solid #ddd !important;
+    border: 4px solid #eee !important;
 }
 
 .activeColor {
-    border: 4px solid #ddd !important;
+    border: 4px solid #eee !important;
 }
 
 #logged-in-users {

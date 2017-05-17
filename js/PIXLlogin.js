@@ -58,10 +58,10 @@ function removeUserData(uid) {
 function getLoggedInUsers() {
     var usersInDb = firebase.database().ref('users/');
     usersInDb.on('child_added', function(data) {
-        console.log(data.key, data.val().username);
+        // console.log(data.key, data.val().username);
     });
     usersInDb.on('child_removed', function(data) {
-        console.log('removed ' + data.key, data.val().username);
+        // console.log('removed ' + data.key, data.val().username);
     });
 }
 
@@ -123,7 +123,7 @@ function gatheringLiveUpdates() {
     // Attach a callback function to track updates
     // That function will be called (with the user count and array of users) every time user list updated
     gathering.onUpdated(function(count, users) {
-        console.log(gathering.roomName + ' has '+ count +' member(s).');
+        // console.log(gathering.roomName + ' has '+ count +' member(s).');
 
         // empty the whole 'logged in users' field.
         document.getElementById("logged-in-users").innerHTML = "";

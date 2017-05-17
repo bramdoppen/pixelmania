@@ -14,6 +14,7 @@ var field = {
     width: 800,
     height: 800
 }
+var hideInfo = false;
 var teamScore = [0, 0];
 var team = 2;
 var teamOne = {
@@ -38,9 +39,6 @@ var lastClickedY;
 
 var specialAttack = 5;
 
-
-// var colorArray = ['DarkTurquoise', 'LightPink', 'GreenYellow', 'Peru', 'Tomato', 'MediumVioletRed', 'DimGray', 'White'];
-// var colorArray = ['#026B99', '#028495', '#285E6F', '#603229', '#371D18', '#89756E', '#BBA69C', '#E8D6C1'];
 var colorArray = [ '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE', '#EEE'];
 var buttonKeys;
 var winner;
@@ -53,12 +51,11 @@ function preload() {
 
 function setup() {
     team = round(random(0, 1)) + 1;
-    console.log('team', team);
     pixelDensity(1);
     frameRate(fr);
     textFont('Courier New');
     localTime = new Date().getTime();
-    canvas = createCanvas(1200, 840);
+    canvas = createCanvas(1040, 840);
     canvas.parent('canvasContainer');
 
     getRoundNumber();
@@ -71,11 +68,9 @@ function setup() {
     pixelValues = initializePixelValues(field.width, field.height);
     teamOne.imgPixels = initializePixelValues(field.width, field.height);
     teamTwo.imgPixels = initializePixelValues(field.width, field.height);
-    // updatePixelValues(field.width, field.height, 'round/' + currentRound + '/pixels/', pixelValues);
     updatePixelValues(field.width, field.height, 'pixels/', pixelValues);
     updatePixelValues(field.width, field.height, 'images/cat/', teamOne.imgPixels);
     updatePixelValues(field.width, field.height, 'images/joker/', teamTwo.imgPixels);
-    console.log(activeColor);
 
     getButtonFromDB();
     gatheringLiveUpdates();
@@ -97,16 +92,12 @@ function getRoundNumber() {
 }
 
 function getScore() {
-    // var teamOneRef = database.ref('round/' + currentRound + '/score/teamOne');
     var teamOneRef = database.ref('round/score/teamOne');
     teamOneRef.on('value', function(data) {
-        console.log('score t1', data.val());
         teamOne.score = data.val();
     }, errData);
-    // var teamTwoRef = database.ref('round/' + currentRound + '/score/teamTwo');
     var teamTwoRef = database.ref('round/score/teamTwo');
     teamTwoRef.on('value', function(data) {
-        console.log('score t2', data.val());
         teamTwo.score = data.val();
     }, errData);
 }
@@ -115,12 +106,10 @@ function getServerTime() {
     var ref = database.ref('time');
     ref.on('value', function(snapshot) {
         serverTime = snapshot.val();
-        console.log(serverTime);
     }, errData);
 }
 
 function getButtonFromDB() {
-    // var buttonsPad = database.ref('colorButtons');
     if (team == 1) {
         var buttonsPad = database.ref('images/cat/palette');
     } else if (team == 2) {
@@ -136,12 +125,8 @@ function gotButtonData(data) {
         buttonListings[i].remove();
     }
     var buttons = data.val();
-    console.log(buttons);
     buttonKeys = Object.keys(buttons);
-    console.log(buttonKeys);
     for (var i = 0; i < buttonKeys.length; i++) {
-        // var k = buttonKeys[i];
-        // console.log(k);
         var colorCode = buttons[i];
         colorArray[i] = colorCode;
         var buttonLi = createElement("li");
@@ -152,11 +137,9 @@ function gotButtonData(data) {
         buttonLi.class('buttonListing');
         colorButton.id(colorTag);
         colorButton.style("background-color", colorCode);
-        console.log(i, colorCode, colorTag);
 
         function makeColorClickHandler(color, key) {
             return function() {
-                console.log(color, key);
                 changeActiveColor(color, key)
             }
         }
@@ -174,12 +157,10 @@ function errButton() {
 
 function changeActiveColor(colorCode, key) {
     var colorTag = colorCode.substr(1);
-    console.log(colorCode, colorTag, activeColor, activeColorIdentifier);
     var prevActiveColorButton = document.getElementById(activeColorIdentifier);
     var activeColorButton = document.getElementById(colorTag);
 
     prevActiveColorButton.className = "";
-    console.log('key: ', key);
     activeColor = key;
     activeColorIdentifier = colorTag;
     activeColorButton.className = "activeColor";
@@ -229,7 +210,6 @@ function changeActiveColorCss(number){
     for (var i = 0; i < 8; i++) {
          mainDiv.children[0].children[i].children[0].className = "";
     }
-
     x.className = "activeColor";
 }
 
@@ -269,15 +249,13 @@ function drawGrid(width, height) {
 }
 
 function drawPixel(col, row, arr, pixelSize, offsetX, offsetY) {
-    // var color = arr[col][row];
     var color = colorArray[arr[col][row]];
     if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(color)) {
-        // console.log('valid colorvalue', color);
         noStroke();
         fill(color);
         rect(offsetX + col * pixelSize, offsetY + row * pixelSize, pixelSize, pixelSize);
     } else {
-        console.log('invalid colorvalue', color);
+        console.log('invalid colorvalue:', color);
     }
 }
 
@@ -289,34 +267,6 @@ function drawScore() {
         rect(800, 0, 3, teamOne.score * ratio);
         fill(79, 42, 129);
         rect(800, 0 + teamOne.score * ratio, 3, teamTwo.score * ratio);
-        // drawTeam(ratio, 810);
-        // showCurrentLeader(ratio);
-    }
-}
-
-function drawTeam(ratio, y) {
-    fill('DimGray');
-    textAlign('center');
-    textStyle(BOLD);
-    textSize(16);
-    text(teamOne.score, y, 40 + teamOne.score / 2 * ratio);
-    text(teamTwo.score, y, 40 + (teamOne.score + teamTwo.score / 2) * ratio);
-}
-
-function showCurrentLeader(ratio) {
-    if (teamOne.score > teamTwo.score) {
-        fill('DarkTurquoise');
-        rect(840 - 8, 40, 3, teamOne.score * ratio);
-    } else if (teamTwo.score > teamOne.score) {
-        fill('GreenYellow');
-        rect(840 - 8, 40 + teamOne.score * ratio, 3, teamTwo.score * ratio);
-    } else {
-        fill('DimGray');
-        textAlign('LEFT');
-        textStyle(BOLD);
-        textSize(16);
-        // text('TIED', 80 + (teamScore[0] + teamScore[1]) * ratio, 855);
-        // text('TIED', 900, 405);
     }
 }
 
@@ -328,21 +278,42 @@ function showReticle() {
         stroke(255, 100, 0);
         strokeWeight(1);
 
-        if (keyIsDown(CONTROL) && specialAttack >= 0 && x > 20 && x < field.width - 20 && y > 20 && y < field.height - 20) {
+        if (keyIsDown(CONTROL) && specialAttack >= 0 && x >= 20 && x < field.width - 20 && y >= 20 && y < field.height - 20) {
             rect(x - 20, y - 20, 60, 60);
             fill(colorArray[activeColor]);
             noStroke();
-            rect(x + 30, y - 30, 20, 20);
             textSize(16);
             textAlign(CENTER);
-            fill('#EEE');
-            text(specialAttack, x + 40, y - 16);
-        } else if (x < field.width && y < field.height) {
+            if (x > field.width / 2 && y > field.height / 2) {
+                rect(x - 30, y - 30, 20, 20);
+                fill('#EEE');
+                text(specialAttack, x - 20, y - 16);
+            } else if (x > field.width / 2) {
+                rect(x - 30, y + 30, 20, 20);
+                fill('#EEE');
+                text(specialAttack, x - 20, y + 44);
+            } else if (y > field.height / 2) {
+                rect(x + 30, y - 30, 20, 20);
+                fill('#EEE');
+                text(specialAttack, x + 40, y - 16);
+            } else {
+                rect(x + 30, y + 30, 20, 20);
+                fill('#EEE');
+                text(specialAttack, x + 40, y + 44);
+            }
+        } else if (x >= 0 && x < field.width && y >= 0 && y < field.height) {
             rect(x, y, 20, 20);
             fill(colorArray[activeColor]);
-            // fill('Tomato');
             noStroke();
-            rect(x + 10, y - 10, 20, 20);
+            if (x > field.width / 2 && y > field.height / 2) {
+                rect(x - 10, y - 10, 20, 20);
+            } else if (x > field.width / 2) {
+                rect(x - 10, y + 10, 20, 20);
+            } else if (y > field.height / 2) {
+                rect(x + 10, y - 10, 20, 20);
+            } else {
+                rect(x + 10, y + 10, 20, 20);
+            }
         }
     }
 }
@@ -352,37 +323,29 @@ function drawMinimap() {
     var y = floor(mouseY / 20) * 20;
 
     var scale = 4;
-    // fill(255, 255, 255, .1);
     fill('rgba(150, 150, 150, 0.75)');
     noStroke();
-    // rect(800, 0, 200, 200);
-    // fill(255, 255, 255, 0);
     beginShape();
-    // Exterior part of shape, clockwise winding
-    vertex(820, 20);
-    vertex(1020, 20);
-    vertex(1020, 220);
-    vertex(820, 220);
+    vertex(820, 0);
+    vertex(1020, 0);
+    vertex(1020, 200);
+    vertex(820, 200);
     if (keyIsDown(CONTROL) && specialAttack > 0 && x < field.width - 20 && x > 0 && y < field.height - 20 && y > 0) {
-        // Interior part of shape, counter-clockwise winding
         beginContour();
-        vertex(820 + x / scale - 5, 20 + y / scale - 5);
-        vertex(820 + x / scale - 5, 20 + y / scale + 10);
-        vertex(820 + x / scale + 10, 20 + y / scale + 10);
-        vertex(820 + x / scale + 10, 20 + y / scale - 5);
+        vertex(820 + x / scale - 5,  y / scale - 5);
+        vertex(820 + x / scale - 5, y / scale + 10);
+        vertex(820 + x / scale + 10, y / scale + 10);
+        vertex(820 + x / scale + 10, y / scale - 5);
         endContour();
         endShape(CLOSE);
-        // rect(800 + x / scale - 5, y / scale - 5, 15, 15);
     } else if (x < field.width && y < field.height) {
-        // Interior part of shape, counter-clockwise winding
         beginContour();
-        vertex(820 + x / scale, 20 + y / scale);
-        vertex(820 + x / scale, 20 + y / scale + 5);
-        vertex(820 + x / scale + 5, 20 + y / scale + 5);
-        vertex(820 + x / scale + 5, 20 + y / scale);
+        vertex(820 + x / scale, y / scale);
+        vertex(820 + x / scale, y / scale + 5);
+        vertex(820 + x / scale + 5, y / scale + 5);
+        vertex(820 + x / scale + 5, y / scale);
         endContour();
         endShape(CLOSE);
-        // rect(800 + x / scale, y / scale, 5, 5);
     }
 }
 
@@ -394,27 +357,7 @@ function mousePressed() {
     if (mouseX > 0 && mouseX < field.width && mouseY > 0 && mouseY < field.height) {
         changeColor();
     }
-    if (mouseX > 840 && mouseX < 900 && mouseY > 840 && mouseY < 860) {
-        if (loggedIn == false) {
-            setToActive();
-            console.log('Login succesful');
-            loggedIn = true;
-        } else {
-            setToInactive();
-            console.log('Logout succesful');
-            loggedIn = false;
-        }
-    }
-    if (mouseX > 840 && mouseX < 900 && mouseY > 760 && mouseY < 780) {
-        if (readyToPlay == false) {
-            console.log('Ready');
-            readyToPlay = true;
-        } else {
-            console.log('Not Ready');
-            readyToPlay = false;
-        }
-    }
-    if (mouseX > 870 && mouseX < 970 && mouseY > 240 && mouseY < 260) {
+    if (mouseX > 870 && mouseX < 970 && mouseY > 220 && mouseY < 240) {
         if (team == 1) {
             team = 2;
             getButtonFromDB();
@@ -423,7 +366,9 @@ function mousePressed() {
             getButtonFromDB();
         }
     }
-    // console.log(floor(mouseX/20), floor(mouseY/20));
+    if (mouseX > 820 && mouseX < 920 && mouseY > 320 && mouseY < 460) {
+        hideInfo = true;
+    }
     return false;
 }
 
@@ -486,14 +431,12 @@ function changeColor() {
 // }
 
 function errData(err) {
-    console.log("error");
-    console.log(err);
+    console.log("error:", err);
 }
 
 function drawTimer() {
     var timer = document.getElementById('timer');
     timeDiff = floor(new Date().getTime() - serverTime);
-    // timer.innerHTML = roundLength - floor(timeDiff / 1000);
     var barWidth = 800;
     var barHeight = 3;
     var width = barWidth / (roundLength * 1000);
@@ -512,10 +455,7 @@ function drawTimer() {
         textStyle(BOLD);
         textSize(16);
         text('The next game starts in: ' + (ceil(((roundLength + 10) * 1000 - timeDiff)/1000)) + ' seconds.', 400, 420);
-    // } else if (timeDiff > (roundLength - 10) * 1000) {
-    //     rect(padding + random(1, 5), 800 + random(1, 5), floor(timeDiff * width / 10) * 10, barHeight);
     } else {
-        // rect(padding, 800, floor(timeDiff * width / 10) * 10, barHeight);
         rect(padding, 800, timeDiff * width, barHeight);
     }
 }
@@ -570,12 +510,26 @@ function drawWinner(){
 
 function drawSwitchButton() {
     noStroke();
-    fill('#bbb');
-    rect(870, 240, 100, 20);
-    fill('#eee');
+    if (mouseX > 870 && mouseX < 970 && mouseY > 220 && mouseY < 240) {
+        fill('#BBB');
+    } else if (team == 2) {
+        fill(204, 40, 34);
+    } else if (team == 1) {
+        fill(79, 42, 129);
+    }
+    rect(870, 220, 100, 20);
+    fill('#EEE');
     textSize(12);
     textAlign(CENTER);
-    text('switch team', 920, 253);
+    text('switch team', 920, 233);
+}
+
+function drawInfo() {
+    textAlign(LEFT);
+    textSize(16);
+    var s = "PIXLmania. Two teams and a single playing field. Try to replicate your team's image while the other team does the same.";
+    fill(50);
+    text(s, 820, 320, 200, 140);
 }
 
 function draw() {
@@ -584,18 +538,20 @@ function draw() {
     }
     background(220);
     if (team == 1) {
-        image(teamOne.img, 820, 20, 200, 200);
+        image(teamOne.img, 820, 0, 200, 200);
     } else if (team == 2) {
-        image(teamTwo.img, 820, 20, 200, 200);
+        image(teamTwo.img, 820, 0, 200, 200);
     }
     drawGrid(field.width, field.height);
     drawScore();
     showReticle();
     drawMinimap();
     drawTimer();
-    drawSelector();
-    // console.log(activeColor);
+    drawSelector(); //prototype
     drawWinner();
     getEndWinner();
     drawSwitchButton();
+    if (hideInfo == false) {
+        drawInfo();
+    }
 }
