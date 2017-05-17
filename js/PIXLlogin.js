@@ -99,7 +99,6 @@ function getUserPhotoFromDatabase(userid) {
     var gatheringProfilePhoto = "";
     getPhoto.once('value', function(snapshot) {
         gatheringProfilePhoto = snapshot.val();
-        console.log(gatheringProfilePhoto);
     }, errData);
     return gatheringProfilePhoto;
 }
