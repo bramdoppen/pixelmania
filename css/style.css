@@ -26,7 +26,7 @@ body {
     top: 20px;
     width: 20px;
     margin: 0px 20px;
-    background-color:#ddd;
+    background-color: rgba(200, 200, 200, 0.5);
     padding: 20px 20px 20px 20px;
     /*border: 2px solid;*/
     /*border-radius: 15px 0 0 15px;*/
@@ -62,9 +62,9 @@ body {
 #logged-in-users {
     position: fixed;
     bottom: 0;
-    border: 2px solid #9fe2ff;
+    /*border: 2px solid #9fe2ff;*/
 }
-#logged-in-users:before {
+/*#logged-in-users:before {
     width: 70px;
     height: 20px;
     content: "Users";
@@ -76,15 +76,15 @@ body {
     padding-left: 12px;
     font-family: 'Jaldi', sans-serif;
     font-weight: 700;
-}
+}*/
 #logged-in-users > .user {
     display: inline-block;
     background: #dedede;
-    padding: 6px 12px;
+    padding: 0px 0px;
     position: relative;
 }
 #logged-in-users > .user > img {
-    width: 30px;
+    width: 20px;
 }
 #logged-in-users > .user > p.name {
     display: inline-block;

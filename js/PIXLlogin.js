@@ -114,7 +114,8 @@ function gatheringLiveUpdates() {
         document.getElementById("logged-in-users").innerHTML = "";
 
         for(var i in users) {
-            document.getElementById("logged-in-users").innerHTML += "<div id='"+ i +"' class='user'><img src='"+getUserPhotoFromDatabase(i)+ "'><p class='name'>"+ users[i] +"</p></div>";
+            // document.getElementById("logged-in-users").innerHTML += "<div id='"+ i +"' class='user'><img src='"+getUserPhotoFromDatabase(i)+ "'><p class='name'>"+ users[i] +"</p></div>";
+            document.getElementById("logged-in-users").innerHTML += "<div id='"+ i +"' class='user'><img src='"+getUserPhotoFromDatabase(i)+ "'></div>";
         }
     });
 }

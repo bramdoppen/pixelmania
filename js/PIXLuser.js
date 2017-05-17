@@ -323,14 +323,14 @@ function showReticle() {
         stroke(255, 100, 0);
         strokeWeight(1);
 
-        if (keyIsDown(CONTROL) && specialAttack > 0 && x < field.width && y < field.height) {
+        if (keyIsDown(CONTROL) && specialAttack >= 0 && x > 20 && x < field.width - 20 && y > 20 && y < field.height - 20) {
             rect(x - 20, y - 20, 60, 60);
             fill(colorArray[activeColor]);
             noStroke();
             rect(x + 30, y - 30, 20, 20);
             textSize(16);
             textAlign(CENTER);
-            fill('White');
+            fill('#EEE');
             text(specialAttack, x + 40, y - 16);
         } else if (x < field.width && y < field.height) {
             rect(x, y, 20, 20);
@@ -434,7 +434,7 @@ function changeColor() {
             ref.set(activeColor);
         }, errData);
 
-        if (keyIsDown(CONTROL) && specialAttack) {
+        if (keyIsDown(CONTROL) && specialAttack > 0) {
             for (var i = 0; i < 3; i++) {
                 for (var j = 0; j < 3; j++) {
                     var ref = database.ref('pixels/' + (x - 1 + j) + '/' + (y - 1 + i) + '/color');
@@ -443,6 +443,7 @@ function changeColor() {
                     }, errData);
                 }
             }
+            specialAttack--;
         }
     }
 }
@@ -490,7 +491,7 @@ function drawTimer() {
     }
     noStroke();
     if (timeDiff > (roundLength * 1000)) {
-        fill('rgba(200, 200, 200, 0.5)');
+        fill('rgba(255, 255, 255, 0.75)');
         rect(0, 340, 800, 120);
         fill('DimGray');
         textAlign('center');
