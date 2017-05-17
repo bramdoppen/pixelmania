@@ -1,3 +1,7 @@
+// -------------------------------------------------------
+// Google sign-in
+// -------------------------------------------------------
+
 var provider = new firebase.auth.GoogleAuthProvider();
 var localUserId;
 
@@ -36,6 +40,7 @@ function signOutWithGoogle() {
         console.log(error)
     });
 }
+
 function writeUserData(uid, name, email, imageUrl) {
     var userid = database.ref('users/' + uid);
     userid.set({
@@ -60,6 +65,10 @@ function getLoggedInUsers() {
     });
 }
 
+// -------------------------------------------------------
+// Login popup
+// -------------------------------------------------------
+
 function showLoginPopup() {
     document.getElementById("mainOverlay").innerHTML = '<div class="innerContent"><div class="buttonWrapper"><button id="loginButton" onclick = "loginWithGoogle()">Play</button></div></div>';
     document.getElementById("mainOverlay").style.display = 'block';
@@ -71,6 +80,9 @@ function removeLoginPopup() {
     document.body.style.overflow = 'auto';
 }
 
+// -------------------------------------------------------
+// Team requests
+// -------------------------------------------------------
 function requestTeamAdd(){
     var ref = database.ref('requests/teamRequest/' + new Date().getTime());
     ref.once('value', function(snapshot) {
@@ -93,6 +105,9 @@ function requestTeamRemove(){
     }, errData);
 }
 
+// -------------------------------------------------------
+// Gathering.js functions
+// -------------------------------------------------------
 
 function getUserPhotoFromDatabase(userid) {
     var getPhoto = database.ref('users/'+ userid + '/profile_picture');
