@@ -114,33 +114,6 @@ function getServerTime() {
     }, errData);
 }
 
-function getUserPhotoFromDatabase(userid) {
-    var getPhoto = database.ref('users/'+ userid + '/profile_picture');
-    var gatheringProfilePhoto = "";
-    getPhoto.once('value', function(snapshot) {
-        gatheringProfilePhoto = snapshot.val();
-    }, errData);
-    return gatheringProfilePhoto;
-}
-
-
-function gatheringLiveUpdates() {
-    // Attach a callback function to track updates
-    // That function will be called (with the user count and array of users) every time user list updated
-    gathering.onUpdated(function(count, users) {
-        console.log(gathering.roomName + ' has '+ count +' member(s).');
-
-        // empty the whole 'logged in users' field.
-        document.getElementById("logged-in-users").innerHTML = "";
-
-        for(var i in users) {
-            document.getElementById("logged-in-users").innerHTML += "<div id='"+ i +"' class='user'><img src='"+getUserPhotoFromDatabase(i)+ "'><p class='name'>"+ users[i] +"</p></div>";
-        }
-
-    });
-}
-
-
 function getButtonFromDB() {
     // var buttonsPad = database.ref('colorButtons');
     if (team == 1) {
