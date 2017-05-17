@@ -46,9 +46,9 @@ var buttonKeys;
 var winner;
 
 function preload() {
-    fontBold = loadFont('./assets/courbd.ttf');
-    teamOne.img = loadImage('/assets/cat8c.jpg');
-    teamTwo.img = loadImage('/assets/joker8c.jpg');
+    fontBold = loadFont('assets/courbd.ttf');
+    teamOne.img = loadImage('assets/cat8c.jpg');
+    teamTwo.img = loadImage('assets/joker8c.jpg');
 }
 
 function setup() {
