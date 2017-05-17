@@ -321,7 +321,7 @@ function drawMinimap() {
         vertex(820 + x / scale + 10, y / scale - 5);
         endContour();
         endShape(CLOSE);
-    } else if (x < field.width && y < field.height) {
+    } else if (x >= 0 && x < field.width && y >= 0 && y < field.height) {
         beginContour();
         vertex(820 + x / scale, y / scale);
         vertex(820 + x / scale, y / scale + 5);
