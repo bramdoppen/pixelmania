@@ -27,7 +27,7 @@ var teamOne = {
 }
 var teamTwo = {
     score: 0,
-    img: 'firefox',
+    img: 'joker',
     imgPixels: []
 }
 var winnerAlreadySet = false;
@@ -53,7 +53,7 @@ function setup() {
     // updatePixelValues(field.width, field.height, 'round/' + currentRound + '/pixels/', pixelValues);
     updatePixelValues(field.width, field.height, 'pixels/', pixelValues);
     updatePixelValues(field.width, field.height, 'images/cat/', teamOne.imgPixels);
-    updatePixelValues(field.width, field.height, 'images/firefox/', teamTwo.imgPixels);
+    updatePixelValues(field.width, field.height, 'images/joker/', teamTwo.imgPixels);
 
     requestHandler();
     teamRequestHandler();
@@ -160,7 +160,7 @@ function setRoundWinner(){
         ref.set(1);
     } else if (teamOne.score < teamTwo.score){
         ref.set(2);
-    } else{
+    } else {
         ref.set(3);
     }
 }
@@ -171,7 +171,8 @@ function gameLobby() {
         winnerAlreadySet = true;
     }
     if (timeDiff >= (roundLength + 10) * 1000) {
-        increaseRoundNumber();
+        // increaseRoundNumber();
+        initRoundWinner();
         initTimerDB();
         initPixelsDB();
         winnerAlreadySet = false;

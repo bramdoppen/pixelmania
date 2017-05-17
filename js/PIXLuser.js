@@ -25,7 +25,7 @@ var teamOne = {
 var teamTwo = {
     score: 0,
     img: '',
-    imgName: 'firefox',
+    imgName: 'joker',
     imgPixels: []
 }
 
@@ -48,7 +48,7 @@ var winner;
 function preload() {
     fontBold = loadFont('./assets/courbd.ttf');
     teamOne.img = loadImage('/assets/cat8c.jpg');
-    teamTwo.img = loadImage('/assets/firefox8c.jpg');
+    teamTwo.img = loadImage('/assets/joker8c.jpg');
 }
 
 function setup() {
@@ -58,7 +58,7 @@ function setup() {
     frameRate(fr);
     textFont('Courier New');
     localTime = new Date().getTime();
-    canvas = createCanvas(1200, 1000);
+    canvas = createCanvas(1200, 840);
     canvas.parent('canvasContainer');
 
     getRoundNumber();
@@ -74,7 +74,7 @@ function setup() {
     // updatePixelValues(field.width, field.height, 'round/' + currentRound + '/pixels/', pixelValues);
     updatePixelValues(field.width, field.height, 'pixels/', pixelValues);
     updatePixelValues(field.width, field.height, 'images/cat/', teamOne.imgPixels);
-    updatePixelValues(field.width, field.height, 'images/firefox/', teamTwo.imgPixels);
+    updatePixelValues(field.width, field.height, 'images/joker/', teamTwo.imgPixels);
     console.log(activeColor);
 
     getButtonFromDB();
@@ -146,7 +146,7 @@ function getButtonFromDB() {
     if (team == 1) {
         var buttonsPad = database.ref('images/cat/palette');
     } else if (team == 2) {
-        var buttonsPad = database.ref('images/firefox/palette');
+        var buttonsPad = database.ref('images/joker/palette');
     }
     buttonsPad.on("value", gotButtonData, errButton);
 }
@@ -307,12 +307,12 @@ function drawScore() {
     var total = teamOne.score + teamTwo.score;
     if (total > 0) {
         var ratio = 800 / total;
-        fill('DarkTurquoise');
+        fill(204, 40, 34);
         rect(800, 0, 3, teamOne.score * ratio);
-        fill('Tomato');
+        fill(79, 42, 129);
         rect(800, 0 + teamOne.score * ratio, 3, teamTwo.score * ratio);
         // drawTeam(ratio, 810);
-        showCurrentLeader(ratio);
+        // showCurrentLeader(ratio);
     }
 }
 
@@ -354,8 +354,11 @@ function showReticle() {
             rect(x - 20, y - 20, 60, 60);
             fill(colorArray[activeColor]);
             noStroke();
-            rect(x + 10, y - 10, 20, 20);
-            text(specialAttack, x + 10, y - 10);
+            rect(x + 30, y - 30, 20, 20);
+            textSize(16);
+            textAlign(CENTER);
+            fill('White');
+            text(specialAttack, x + 40, y - 16);
         } else if (x < field.width && y < field.height) {
             rect(x, y, 20, 20);
             fill(colorArray[activeColor]);
@@ -378,27 +381,27 @@ function drawMinimap() {
     // fill(255, 255, 255, 0);
     beginShape();
     // Exterior part of shape, clockwise winding
-    vertex(820, 0);
-    vertex(1020, 0);
-    vertex(1020, 200);
-    vertex(820, 200);
+    vertex(820, 20);
+    vertex(1020, 20);
+    vertex(1020, 220);
+    vertex(820, 220);
     if (keyIsDown(CONTROL) && specialAttack > 0 && x < field.width - 20 && x > 0 && y < field.height - 20 && y > 0) {
         // Interior part of shape, counter-clockwise winding
         beginContour();
-        vertex(820 + x / scale - 5, y / scale - 5);
-        vertex(820 + x / scale - 5, y / scale + 10);
-        vertex(820 + x / scale + 10, y / scale + 10);
-        vertex(820 + x / scale + 10, y / scale - 5);
+        vertex(820 + x / scale - 5, 20 + y / scale - 5);
+        vertex(820 + x / scale - 5, 20 + y / scale + 10);
+        vertex(820 + x / scale + 10, 20 + y / scale + 10);
+        vertex(820 + x / scale + 10, 20 + y / scale - 5);
         endContour();
         endShape(CLOSE);
         // rect(800 + x / scale - 5, y / scale - 5, 15, 15);
     } else if (x < field.width && y < field.height) {
         // Interior part of shape, counter-clockwise winding
         beginContour();
-        vertex(820 + x / scale, y / scale);
-        vertex(820 + x / scale, y / scale + 5);
-        vertex(820 + x / scale + 5, y / scale + 5);
-        vertex(820 + x / scale + 5, y / scale);
+        vertex(820 + x / scale, 20 + y / scale);
+        vertex(820 + x / scale, 20 + y / scale + 5);
+        vertex(820 + x / scale + 5, 20 + y / scale + 5);
+        vertex(820 + x / scale + 5, 20 + y / scale);
         endContour();
         endShape(CLOSE);
         // rect(800 + x / scale, y / scale, 5, 5);
@@ -449,50 +452,50 @@ function mouseReleased() {
     }
 }
 
-// function changeColor() {
-//     if (mouseX < 800 && mouseY < 800) {
-//         var x = floor(mouseX / 20);
-//         var y = floor(mouseY / 20);
-//         var ref = database.ref('pixels/' + x + '/' + y + '/color');
-//         ref.once('value', function(snapshot) {
-//             ref.set(activeColor);
-//         }, errData);
-//
-//         if (keyIsDown(CONTROL) && specialAttack) {
-//             for (var i = 0; i < 3; i++) {
-//                 for (var j = 0; j < 3; j++) {
-//                     var ref = database.ref('pixels/' + (x - 1 + j) + '/' + (y - 1 + i) + '/color');
-//                     ref.once('value', function(snapshot) {
-//                         ref.set(activeColor);
-//                     }, errData);
-//                 }
-//             }
-//         }
-//     }
-// }
-
 function changeColor() {
     if (mouseX < 800 && mouseY < 800) {
         var x = floor(mouseX / 20);
         var y = floor(mouseY / 20);
-        var ref = database.ref('requests/pixelChange/' + new Date().getTime());
-        drawPixel(x, y, pixelValues, 20, 0, 0);
+        var ref = database.ref('pixels/' + x + '/' + y + '/color');
         ref.once('value', function(snapshot) {
-            data = {
-                x: x,
-                y: y,
-                color: activeColor,
-                sAttack: 0,
-                user: localUserId || 'not yet logged in'
-            }
-            if (keyIsDown(CONTROL) && specialAttack > 0) {
-                data.sAttack = 1;
-                specialAttack--;
-            }
-            ref.set(data);
+            ref.set(activeColor);
         }, errData);
+
+        if (keyIsDown(CONTROL) && specialAttack) {
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    var ref = database.ref('pixels/' + (x - 1 + j) + '/' + (y - 1 + i) + '/color');
+                    ref.once('value', function(snapshot) {
+                        ref.set(activeColor);
+                    }, errData);
+                }
+            }
+        }
     }
 }
+
+// function changeColor() {
+//     if (mouseX < 800 && mouseY < 800) {
+//         var x = floor(mouseX / 20);
+//         var y = floor(mouseY / 20);
+//         var ref = database.ref('requests/pixelChange/' + new Date().getTime());
+//         drawPixel(x, y, pixelValues, 20, 0, 0);
+//         ref.once('value', function(snapshot) {
+//             data = {
+//                 x: x,
+//                 y: y,
+//                 color: activeColor,
+//                 sAttack: 0,
+//                 user: localUserId || 'not yet logged in'
+//             }
+//             if (keyIsDown(CONTROL) && specialAttack > 0) {
+//                 data.sAttack = 1;
+//                 specialAttack--;
+//             }
+//             ref.set(data);
+//         }, errData);
+//     }
+// }
 
 function errData(err) {
     console.log("error");
@@ -502,7 +505,7 @@ function errData(err) {
 function drawTimer() {
     var timer = document.getElementById('timer');
     timeDiff = floor(new Date().getTime() - serverTime);
-    timer.innerHTML = roundLength - floor(timeDiff / 1000);
+    // timer.innerHTML = roundLength - floor(timeDiff / 1000);
     var barWidth = 800;
     var barHeight = 3;
     var width = barWidth / (roundLength * 1000);
@@ -514,7 +517,13 @@ function drawTimer() {
     }
     noStroke();
     if (timeDiff > (roundLength * 1000)) {
-        text('The next game starts in: ' + (ceil(((roundLength + 10) * 1000 - timeDiff)/1000)) + ' seconds.', 400, 810);
+        fill('rgba(200, 200, 200, 0.5)');
+        rect(0, 340, 800, 120);
+        fill('DimGray');
+        textAlign('center');
+        textStyle(BOLD);
+        textSize(16);
+        text('The next game starts in: ' + (ceil(((roundLength + 10) * 1000 - timeDiff)/1000)) + ' seconds.', 400, 420);
     // } else if (timeDiff > (roundLength - 10) * 1000) {
     //     rect(padding + random(1, 5), 800 + random(1, 5), floor(timeDiff * width / 10) * 10, barHeight);
     } else {
@@ -544,7 +553,7 @@ function drawSelector() {
 }
 
 function getEndWinner(){
-    var ref = database.ref('round/' + currentRound + '/winner');
+    var ref = database.ref('round/winner');
     ref.on('value', function(snapshot) {
         winner = snapshot.val();
     }, errData);
@@ -558,13 +567,13 @@ function drawWinner(){
 
    switch (winner) {
         case 1:
-            text('End winner is team number 1!', 120, 400);
+            text('End winner is team number 1!', 400, 400);
             break;
         case 2:
-            text('End winner is team number 2!', 120, 400);
+            text('End winner is team number 2!', 400, 400);
             break;
         case 3:
-            text('Round draw...', 120, 400);
+            text('Round draw...', 400, 400);
             break;
         default:
             break;
@@ -577,9 +586,9 @@ function draw() {
     }
     background(220);
     if (team == 1) {
-        image(teamOne.img, 820, 0, 200, 200);
+        image(teamOne.img, 820, 20, 200, 200);
     } else if (team == 2) {
-        image(teamTwo.img, 820, 0, 200, 200);
+        image(teamTwo.img, 820, 20, 200, 200);
     }
     drawGrid(field.width, field.height);
     drawScore();

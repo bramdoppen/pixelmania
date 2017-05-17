@@ -62,5 +62,10 @@ function initTeamsDB() {
     team2.set(dataTeam2);
 }
 
+function initRoundWinner() {
+    var ref = database.ref('round/winner');
+    ref.set(0);
+}
+
 function draw() {
 }
