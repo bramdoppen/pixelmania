@@ -116,7 +116,7 @@ function getScore(width, height) {
 
 function countMatchingColors(col, row, team) {
     var matchingColor = false;
-    if (team.imgPixels[col][row] === pixelValues[col][row]) {
+    if (team.imgPixels[col][row] === pixelValues[col][row] && team.imgPixels[col][row] != 8) {
         matchingColor = true;
     }
     if (matchingColor) {
